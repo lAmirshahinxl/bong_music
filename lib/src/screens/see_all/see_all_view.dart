@@ -87,20 +87,28 @@ class _SeeAllPageState extends State<SeeAllPage> {
                 const SizedBox(
                   height: 20,
                 ),
-                TabBar(
-                  controller: logic.tabController,
-                  indicatorSize: TabBarIndicatorSize.tab,
-                  splashBorderRadius: BorderRadius.circular(10),
-                  onTap: logic.onTabChanged,
-                  unselectedLabelColor:
-                      Get.isDarkMode ? Colors.white : Colors.black,
-                  indicator: const BubbleTabIndicator(
-                    indicatorHeight: 50.0,
-                    indicatorColor: Color(0xffFFD700),
-                    tabBarIndicatorSize: TabBarIndicatorSize.tab,
-                    indicatorRadius: 10,
+                SizedBox(
+                  height: 35,
+                  child: TabBar(
+                    controller: logic.tabController,
+                    indicatorSize: TabBarIndicatorSize.tab,
+                    labelPadding: EdgeInsets.zero,
+                    splashBorderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(10),
+                        topRight: Radius.circular(10)),
+                    onTap: logic.onTabChanged,
+                    unselectedLabelColor:
+                        Get.isDarkMode ? Colors.white : Colors.black,
+                    labelColor: ColorConstants.gold,
+                    indicatorColor: ColorConstants.gold,
+                    // indicator: const BubbleTabIndicator(
+                    //   indicatorHeight: 50.0,
+                    //   indicatorColor: Color(0xffFFD700),
+                    //   tabBarIndicatorSize: TabBarIndicatorSize.tab,
+                    //   indicatorRadius: 10,
+                    // ),
+                    tabs: logic.tabList,
                   ),
-                  tabs: logic.tabList,
                 ),
                 Expanded(
                     child: Obx(

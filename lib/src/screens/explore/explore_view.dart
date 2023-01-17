@@ -13,6 +13,7 @@ import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -347,7 +348,7 @@ class ExplorePage extends StatelessWidget {
             },
             openBuilder: (BuildContext context,
                 void Function({Object? returnValue}) action) {
-              return PlayListDeatilPage(action, currenPlayList.children[index]);
+              return PlayListDeatilPage(currenPlayList.children[index]);
             },
           ),
         ),
@@ -496,7 +497,8 @@ class ExplorePage extends StatelessWidget {
               verticalOffset: 0,
               child: Material(
                 child: InkWell(
-                  onTap: () {},
+                  onTap: () =>
+                      Get.toNamed(logic.tabListStatics[index]['route']),
                   child: Column(
                     children: [
                       Padding(
@@ -587,6 +589,11 @@ class ExplorePage extends StatelessWidget {
                           const SizedBox(
                             width: 10,
                           ),
+                          SvgPicture.asset(
+                            'assets/icons/music-tune.svg',
+                            width: 25,
+                            height: 25,
+                          )
                         ],
                       ),
                       TextButton(
@@ -810,7 +817,7 @@ class ExplorePage extends StatelessWidget {
             openBuilder: (BuildContext context,
                 void Function({Object? returnValue}) action) {
               print(mediaChild.categoryId);
-              return VideoUiPage(action, mediaChild);
+              return VideoUiPage(mediaChild);
             },
           ),
         ),

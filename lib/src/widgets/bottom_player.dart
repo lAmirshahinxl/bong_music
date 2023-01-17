@@ -103,30 +103,60 @@ class _BottomPlayerWidgetState extends State<BottomPlayerWidget> {
                                       )
                                     ],
                                   )),
-                                  Obx(() {
-                                    return ProgressBar(
-                                      progress:
-                                          indexLogic.currentDuration.value,
-                                      buffered:
-                                          indexLogic.buffredDuration.value,
-                                      total: indexLogic.audioPlayer.duration ??
-                                          const Duration(seconds: 0),
-                                      progressBarColor: ColorConstants.gold,
-                                      baseBarColor:
-                                          Colors.black.withOpacity(0.2),
-                                      thumbColor: ColorConstants.gold,
-                                      thumbGlowColor: ColorConstants.gold,
-                                      bufferedBarColor:
-                                          Colors.black.withOpacity(0.2),
-                                      onSeek: (duration) {
-                                        indexLogic.seekTo(duration);
-                                      },
-                                      timeLabelTextStyle: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium!
-                                          .copyWith(color: ColorConstants.gold),
-                                    );
-                                  }),
+                                  StreamBuilder(
+                                    stream:
+                                        indexLogic.audioPlayer.positionStream,
+                                    builder: (context,
+                                        AsyncSnapshot<Duration?> position) {
+                                      return StreamBuilder(
+                                        stream: indexLogic
+                                            .audioPlayer.bufferedPositionStream,
+                                        builder: (context,
+                                                AsyncSnapshot<Duration?>
+                                                    buffred) =>
+                                            StreamBuilder(
+                                                stream: indexLogic
+                                                    .audioPlayer.durationStream,
+                                                builder:
+                                                    (context, totalDuration) {
+                                                  return ProgressBar(
+                                                    progress: position.data ??
+                                                        const Duration(
+                                                            seconds: 1),
+                                                    buffered: buffred.data ??
+                                                        const Duration(
+                                                            seconds: 1),
+                                                    total: totalDuration.data ??
+                                                        const Duration(
+                                                            seconds: 1),
+                                                    progressBarColor:
+                                                        ColorConstants.gold,
+                                                    baseBarColor: Colors.black
+                                                        .withOpacity(0.2),
+                                                    thumbColor:
+                                                        ColorConstants.gold,
+                                                    thumbGlowColor:
+                                                        ColorConstants.gold,
+                                                    bufferedBarColor: Colors
+                                                        .black
+                                                        .withOpacity(0.2),
+                                                    onSeek: (duration) {
+                                                      indexLogic
+                                                          .seekTo(duration);
+                                                    },
+                                                    timeLabelTextStyle: Theme
+                                                            .of(context)
+                                                        .textTheme
+                                                        .bodyMedium!
+                                                        .copyWith(
+                                                            color:
+                                                                ColorConstants
+                                                                    .gold),
+                                                  );
+                                                }),
+                                      );
+                                    },
+                                  )
                                 ],
                               ),
                             ),
@@ -136,7 +166,9 @@ class _BottomPlayerWidgetState extends State<BottomPlayerWidget> {
                     )),
         );
       },
-      openBuilder: (context, action) => const MusicPage(),
+      openBuilder: (context, action) => MusicPage(
+        fromBottom: true,
+      ),
     );
   }
 }

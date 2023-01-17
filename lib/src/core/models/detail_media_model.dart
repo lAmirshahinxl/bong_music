@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:bong/src/core/models/artist_detail_model.dart';
 
+import 'home_requests_model.dart';
+
 DetailMediaModel detailMediaModelFromJson(String str) =>
     DetailMediaModel.fromJson(json.decode(str));
 
@@ -39,7 +41,6 @@ class Data {
     required this.title,
     required this.description,
     required this.shortDescription,
-    required this.meta,
     required this.viewsCount,
     required this.sharesCount,
     required this.length,
@@ -53,6 +54,7 @@ class Data {
     required this.updatedAt,
     required this.price,
     required this.likesCount,
+    required this.playsCount,
     required this.type,
     required this.originalSource,
     required this.imageUrl,
@@ -64,13 +66,13 @@ class Data {
     required this.episodeCount,
     required this.category,
     required this.content,
+    required this.artists,
   });
 
   int id;
   Description title;
   Description description;
   Description shortDescription;
-  List<dynamic> meta;
   int viewsCount;
   int sharesCount;
   String length;
@@ -84,6 +86,7 @@ class Data {
   DateTime updatedAt;
   int price;
   int likesCount;
+  int playsCount;
   String type;
   String originalSource;
   String imageUrl;
@@ -95,50 +98,52 @@ class Data {
   int episodeCount;
   List<Category> category;
   List<dynamic> content;
+  List<Artist> artists;
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
-        id: json["id"],
-        title: Description.fromJson(json["title"]),
-        description: Description.fromJson(json["description"]),
-        shortDescription: Description.fromJson(json["short_description"]),
-        meta: List<dynamic>.from(json["meta"].map((x) => x)),
-        viewsCount: json["views_count"],
-        sharesCount: json["shares_count"],
-        length: json["length"],
-        language: json["language"],
-        releaseDate: DateTime.parse(json["release_date"]),
-        maturityRating: json["maturity_rating"],
-        status: json["status"],
-        userId: json["user_id"],
-        parentMediaId: json["parent_media_id"],
-        createdAt: DateTime.parse(json["created_at"]),
-        updatedAt: DateTime.parse(json["updated_at"]),
-        price: json["price"],
-        likesCount: json["likes_count"],
-        type: json["type"],
-        originalSource: json["original_source"] ?? "",
-        imageUrl: json["image_url"],
-        stories: json["stories"] == null
-            ? []
-            : List<Story>.from(json["stories"].map((x) => x)),
-        upNext: json["up_next"] == null
-            ? []
-            : List<Data>.from(json["up_next"].map((x) => Data.fromJson(x))),
-        favoritesCount: json["favoritesCount"],
-        isFavourite: json["isFavourite"],
-        seasonCount: json["seasonCount"],
-        episodeCount: json["episode_count"],
-        category: List<Category>.from(
-            json["category"].map((x) => Category.fromJson(x))),
-        content: List<dynamic>.from(json["content"].map((x) => x)),
-      );
+      id: json["id"],
+      title: Description.fromJson(json["title"]),
+      description: Description.fromJson(json["description"]),
+      shortDescription: Description.fromJson(json["short_description"]),
+      viewsCount: json["views_count"],
+      sharesCount: json["shares_count"],
+      length: json["length"],
+      language: json["language"],
+      releaseDate: DateTime.parse(json["release_date"]),
+      maturityRating: json["maturity_rating"],
+      status: json["status"],
+      userId: json["user_id"],
+      parentMediaId: json["parent_media_id"],
+      createdAt: DateTime.parse(json["created_at"]),
+      updatedAt: DateTime.parse(json["updated_at"]),
+      price: json["price"],
+      likesCount: json["likes_count"],
+      playsCount: json["plays_count"],
+      type: json["type"],
+      originalSource: json["original_source"] ?? "",
+      imageUrl: json["image_url"],
+      stories: json["stories"] == null
+          ? []
+          : List<Story>.from(json["stories"].map((x) => x)),
+      upNext: json["up_next"] == null
+          ? []
+          : List<Data>.from(json["up_next"].map((x) => Data.fromJson(x))),
+      artists: json["artists"] == null
+          ? []
+          : List<Artist>.from(json["artists"].map((x) => Artist.fromJson(x))),
+      favoritesCount: json["favoritesCount"],
+      isFavourite: json["isFavourite"],
+      seasonCount: json["seasonCount"],
+      episodeCount: json["episode_count"],
+      category: List<Category>.from(
+          json["category"].map((x) => Category.fromJson(x))),
+      content: List<dynamic>.from(json["content"].map((x) => x)));
 
   Map<String, dynamic> toJson() => {
         "id": id,
         "title": title.toJson(),
         "description": description.toJson(),
         "short_description": shortDescription.toJson(),
-        "meta": List<dynamic>.from(meta.map((x) => x)),
         "views_count": viewsCount,
         "shares_count": sharesCount,
         "length": length,
@@ -153,6 +158,7 @@ class Data {
         "updated_at": updatedAt.toIso8601String(),
         "price": price,
         "likes_count": likesCount,
+        "plays_count": playsCount,
         "type": type,
         "original_source": originalSource,
         "image_url": imageUrl,
@@ -164,6 +170,7 @@ class Data {
         "episode_count": episodeCount,
         "category": List<dynamic>.from(category.map((x) => x.toJson())),
         "content": List<dynamic>.from(content.map((x) => x)),
+        "artists": List<dynamic>.from(artists.map((x) => x)),
       };
 }
 

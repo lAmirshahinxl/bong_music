@@ -19,10 +19,9 @@ import '../../config/string_constants.dart';
 import '../../widgets/bottom_player.dart';
 
 class ArtistDetailPage extends StatefulWidget {
-  late void Function({Object? returnValue}) action;
   late Artist currentArtist;
 
-  ArtistDetailPage(this.action, this.currentArtist, {super.key});
+  ArtistDetailPage(this.currentArtist, {super.key});
 
   @override
   State<ArtistDetailPage> createState() => _ArtistDetailPageState();
@@ -34,7 +33,6 @@ class _ArtistDetailPageState extends State<ArtistDetailPage> {
   @override
   void initState() {
     logic.currentArtist = widget.currentArtist;
-    logic.action = widget.action;
 
     super.initState();
   }
@@ -70,7 +68,7 @@ class _ArtistDetailPageState extends State<ArtistDetailPage> {
                     Visibility(
                       visible: true,
                       child: IconButton(
-                        onPressed: () => logic.action.call(),
+                        onPressed: () => Get.back(),
                         icon: Icon(
                           Icons.arrow_back_ios,
                           color: Get.isDarkMode ? Colors.white : Colors.black,

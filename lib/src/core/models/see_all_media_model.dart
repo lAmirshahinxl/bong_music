@@ -26,7 +26,7 @@ class SeeAllMediaModel {
             : List<MediaChild>.from(
                 json["data"].map((x) => MediaChild.fromJson(x))),
         code: json["code"],
-        message: json["message"],
+        message: json["message"] ?? '',
       );
 
   Map<String, dynamic> toJson() => {

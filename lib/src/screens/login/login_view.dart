@@ -8,6 +8,7 @@ import 'package:bong/src/widgets/submit_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/container.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 
@@ -75,12 +76,18 @@ class LoginPage extends StatelessWidget {
               ),
             ),
           ),
-          Lottie.asset('assets/lottie/hello.json',
-              width: 200, height: 200, repeat: false, onLoaded: (p0) {
-            logic.animationController
-              ..duration = p0.duration
-              ..forward();
-          }, controller: logic.animationController),
+          Lottie.asset(
+            'assets/lottie/hello.json',
+            width: 200,
+            height: 200,
+            repeat: false,
+            animate: false,
+            onLoaded: (p0) {
+              // logic.animationController
+              //   ..duration = p0.duration
+              //   ..forward();
+            }, /*controller: logic.animationController*/
+          ),
           const SizedBox(
             height: 10,
           ),
@@ -193,7 +200,7 @@ class LoginPage extends StatelessWidget {
                   duration: const Duration(seconds: 1),
                   child: logic.accountState.value == AccountState.login
                       ? SizedBox(
-                          height: 70,
+                          height: 30,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -250,6 +257,28 @@ class LoginPage extends StatelessWidget {
                           ],
                         ),
                 ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    logic.splashLogic.currentLanguage['areForgetPassword'],
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        color: Get.isDarkMode ? Colors.white : Colors.black),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      EasyLoading.showToast("Not working");
+                    },
+                    child: Text(
+                      logic.splashLogic.currentLanguage['recovery'],
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium!
+                          .copyWith(color: ColorConstants.gold),
+                    ),
+                  )
+                ],
               )
             ],
           ))

@@ -1,6 +1,8 @@
 import 'dart:io';
+import 'package:bong/src/utils/download_class.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+// import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:path_provider/path_provider.dart';
@@ -14,12 +16,12 @@ void main() async {
   GetStorage().write('root', directory.path);
   if (!GetStorage().hasData('theme')) GetStorage().write('theme', 0);
   if (!GetStorage().hasData('language')) GetStorage().write('language', 'en');
-  await FlutterDownloader.initialize(
-      debug:
-          true, // optional: set to false to disable printing logs to console (default: true)
-      ignoreSsl:
-          true // option: set to false to disable working with http links (default: false)
-      );
+  // await DefaultCacheManager().emptyCache();
+  // GetStorage().remove('offlineMusic');
+  // await FlutterDownloader.initialize(debug: true, ignoreSsl: true);
+  // FlutterDownloader.registerCallback(DownloadClass.callback);
+
+  // for background music
   // await JustAudioBackground.init(
   //   androidNotificationChannelId: 'com.ryanheise.bg_demo.channel.audio',
   //   androidNotificationChannelName: 'Audio playback',

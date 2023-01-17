@@ -47,5 +47,13 @@ class ArabicLanguage {
         "selectArtist": "حدد الفنان",
         "selectCategory": "اختر الفئة",
         "forYou": "لك",
+        "podcast": "Podcasts",
+        "favorite": "المفضلة",
+        "addToFavorite": "أضف إلى المفضلة",
+        "goToArtist": "الانتقال إلى الفنان",
+        "viewInfo": "عرض المعلومات",
+        "myPlaylist": "بلدي قائمة التشغيل",
+        "areForgetPassword": "نسيت رقمك السري؟",
+        "recovery": "الاسترداد"
       };
 }

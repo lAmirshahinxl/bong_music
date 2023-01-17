@@ -47,5 +47,13 @@ class TurkeyLanguage {
         "selectArtist": "Sanatçı Seç",
         "selectCategory": "Kategori seç",
         "forYou": "Sizin İçin",
+        "podcast": "Podcasts",
+        "favorite": "Favori",
+        "addToFavorite": "favorilere ekle",
+        "goToArtist": "Sanatçıya Git",
+        "viewInfo": "Bilgiyi Görüntüle",
+        "myPlaylist": "çalma listem",
+        "areForgetPassword": "Parolanızı mı unuttunuz?",
+        "recovery": "Kurtarma",
       };
 }

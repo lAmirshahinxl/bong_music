@@ -14,10 +14,14 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../artist_detail/artist_detail_view.dart';
+
 class MusicPage extends StatefulWidget {
-  const MusicPage({super.key});
+  bool fromBottom;
+  MusicPage({this.fromBottom = false, super.key});
 
   @override
   State<MusicPage> createState() => _MusicPageState();
@@ -25,6 +29,12 @@ class MusicPage extends StatefulWidget {
 
 class _MusicPageState extends State<MusicPage> {
   final logic = Get.put(MusicLogic());
+
+  @override
+  void initState() {
+    logic.fromBottom = widget.fromBottom;
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -37,292 +47,344 @@ class _MusicPageState extends State<MusicPage> {
     return Scaffold(
       body: Column(
         children: [
-          Container(
-            height: Get.height,
-            width: Get.width,
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: NetworkImage(
-                    "$imageBaseUrlWithoutSlash${logic.indexLogic.selectedMusic.value!.imageUrl}"),
-                fit: BoxFit.cover,
+          Obx(
+            () => Container(
+              height: Get.height,
+              width: Get.width,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: NetworkImage(
+                      "$imageBaseUrlWithoutSlash${logic.indexLogic.selectedMusic.value!.imageUrl}"),
+                  fit: BoxFit.cover,
+                ),
               ),
-            ),
-            child: Stack(
-              children: [
-                BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-                  child: Container(
-                    decoration:
-                        BoxDecoration(color: Colors.white.withOpacity(0.0)),
-                  ),
-                ),
-                Positioned(
-                  top: 30,
-                  left: 10,
-                  child: IconButton(
-                    icon: Icon(
-                      Icons.arrow_back_ios_new_rounded,
-                      color: Get.isDarkMode ? Colors.white : Colors.black,
-                      size: 30,
+              child: Stack(
+                children: [
+                  BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                    child: Container(
+                      decoration:
+                          BoxDecoration(color: Colors.black.withOpacity(0.2)),
                     ),
-                    onPressed: logic.back,
                   ),
-                ),
-                Positioned(
-                    top: Get.width * 0.2,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    child: SingleChildScrollView(
-                      physics: const BouncingScrollPhysics(),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Obx(
-                            () => Padding(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: Get.width * 0.2),
-                              child: AnimatedSizeAndFade.showHide(
-                                  show: logic.showAnimation.value,
-                                  fadeDuration: const Duration(seconds: 1),
-                                  sizeDuration: const Duration(seconds: 1),
-                                  child: Container(
-                                    padding: const EdgeInsets.all(10),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(1),
-                                    ),
-                                    child: CachedNetworkImage(
-                                      imageUrl:
-                                          "$imageBaseUrlWithoutSlash${logic.indexLogic.selectedMusic.value!.imageUrl}",
-                                      fit: BoxFit.fill,
-                                    ),
-                                  )),
+                  Positioned(
+                    top: 30,
+                    left: 10,
+                    child: IconButton(
+                      icon: Icon(
+                        Icons.arrow_back_ios_new_rounded,
+                        color: Get.isDarkMode ? Colors.white : Colors.black,
+                        size: 30,
+                      ),
+                      onPressed: logic.back,
+                    ),
+                  ),
+                  Positioned(
+                      top: Get.width * 0.2,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      child: SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Obx(
+                              () => Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: Get.width * 0.2),
+                                child: AnimatedSizeAndFade.showHide(
+                                    show: logic.showAnimation.value,
+                                    fadeDuration: const Duration(seconds: 1),
+                                    sizeDuration: const Duration(seconds: 1),
+                                    child: Container(
+                                      padding: const EdgeInsets.all(10),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(1),
+                                      ),
+                                      child: CachedNetworkImage(
+                                        imageUrl:
+                                            "$imageBaseUrlWithoutSlash${logic.indexLogic.selectedMusic.value!.imageUrl}",
+                                        fit: BoxFit.fill,
+                                      ),
+                                    )),
+                              ),
                             ),
-                          ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          Obx(
-                            () => AnimatedSwitcherFlip.flipY(
-                                duration: const Duration(seconds: 2),
-                                child: logic.showAnimation.value
-                                    ? Column(
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 10),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                      logic
-                                                          .indexLogic
-                                                          .selectedMusic
-                                                          .value!
-                                                          .title
-                                                          .en
-                                                          .toString(),
-                                                      style: Theme.of(context)
-                                                          .textTheme
-                                                          .headline3!
-                                                          .copyWith(
-                                                              color: Get
-                                                                      .isDarkMode
-                                                                  ? Colors.white
-                                                                  : Colors
-                                                                      .black),
-                                                    ),
-                                                    const SizedBox(
-                                                      height: 6,
-                                                    ),
-                                                    Text(
-                                                      logic
-                                                          .indexLogic
-                                                          .selectedMusic
-                                                          .value!
-                                                          .shortDescription
-                                                          .en
-                                                          .toString(),
-                                                      style: Theme.of(context)
-                                                          .textTheme
-                                                          .bodyLarge!
-                                                          .copyWith(
-                                                              color: Get
-                                                                      .isDarkMode
-                                                                  ? Colors.white
-                                                                  : Colors
-                                                                      .black),
-                                                    )
-                                                  ],
-                                                ),
-                                                IconButton(
-                                                    onPressed: () {},
-                                                    icon: const Icon(
-                                                        Icons.heart_broken,
-                                                        size: 25,
-                                                        color: Colors.white))
-                                              ],
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 10, vertical: 10),
-                                            child: Obx(() {
-                                              return ProgressBar(
-                                                progress: logic.indexLogic
-                                                    .currentDuration.value,
-                                                buffered: logic.indexLogic
-                                                    .buffredDuration.value,
-                                                total: logic.indexLogic
-                                                    .totalDuration.value,
-                                                progressBarColor: Colors.white,
-                                                baseBarColor: Colors.black
-                                                    .withOpacity(0.2),
-                                                thumbColor: Colors.white,
-                                                thumbGlowColor: Colors.white,
-                                                bufferedBarColor: Colors.black
-                                                    .withOpacity(0.2),
-                                                onSeek: (duration) {
-                                                  logic.seekTo(duration);
-                                                },
-                                                timeLabelTextStyle:
-                                                    Theme.of(context)
-                                                        .textTheme
-                                                        .bodyMedium!
-                                                        .copyWith(
-                                                            color:
-                                                                Colors.white),
-                                              );
-                                            }),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 10),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                IconButton(
-                                                    onPressed:
-                                                        logic.changeLoopMode,
-                                                    icon: Obx(
-                                                      () => Icon(
-                                                        Icons.repeat_rounded,
-                                                        size: 25,
-                                                        color: logic.indexLogic
-                                                                .loopMode.value
-                                                            ? ColorConstants
-                                                                .gold
-                                                            : Colors.white,
+                            const SizedBox(
+                              height: 20,
+                            ),
+                            Obx(
+                              () => AnimatedSwitcherFlip.flipY(
+                                  duration: const Duration(seconds: 2),
+                                  child: logic.showAnimation.value
+                                      ? Column(
+                                          children: [
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 10),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        logic
+                                                            .indexLogic
+                                                            .selectedMusic
+                                                            .value!
+                                                            .title
+                                                            .en
+                                                            .toString(),
+                                                        style: Theme.of(context)
+                                                            .textTheme
+                                                            .headline3!
+                                                            .copyWith(
+                                                                color: Get.isDarkMode
+                                                                    ? Colors
+                                                                        .white
+                                                                    : Colors
+                                                                        .black),
                                                       ),
-                                                    )),
-                                                IconButton(
-                                                    onPressed: () {},
-                                                    icon: const RotatedBox(
-                                                      quarterTurns: 270,
-                                                      child: Icon(
+                                                      const SizedBox(
+                                                        height: 6,
+                                                      ),
+                                                      Text(
+                                                        logic
+                                                            .indexLogic
+                                                            .selectedMusic
+                                                            .value!
+                                                            .shortDescription
+                                                            .en
+                                                            .toString(),
+                                                        style: Theme.of(context)
+                                                            .textTheme
+                                                            .bodyLarge!
+                                                            .copyWith(
+                                                                color: Get.isDarkMode
+                                                                    ? Colors
+                                                                        .white
+                                                                    : Colors
+                                                                        .black),
+                                                      )
+                                                    ],
+                                                  ),
+                                                  Obx(
+                                                    () => IconButton(
+                                                        onPressed: () {
+                                                          logic.addToFavorite();
+                                                        },
+                                                        icon: Icon(
+                                                            logic
+                                                                    .indexLogic
+                                                                    .selectedMusic
+                                                                    .value!
+                                                                    .isFavourite
+                                                                ? Icons
+                                                                    .star_rate_rounded
+                                                                : Icons
+                                                                    .star_border_rounded,
+                                                            size: 25,
+                                                            color:
+                                                                Colors.white)),
+                                                  )
+                                                ],
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 10,
+                                                      vertical: 10),
+                                              child: Obx(() {
+                                                return ProgressBar(
+                                                  progress: logic.indexLogic
+                                                      .currentDuration.value,
+                                                  buffered: logic.indexLogic
+                                                      .buffredDuration.value,
+                                                  total: logic.indexLogic
+                                                      .totalDuration.value,
+                                                  progressBarColor:
+                                                      Colors.white,
+                                                  baseBarColor: Colors.black
+                                                      .withOpacity(0.2),
+                                                  thumbColor: Colors.white,
+                                                  thumbGlowColor: Colors.white,
+                                                  bufferedBarColor: Colors.black
+                                                      .withOpacity(0.2),
+                                                  onSeek: (duration) {
+                                                    logic.seekTo(duration);
+                                                  },
+                                                  timeLabelTextStyle:
+                                                      Theme.of(context)
+                                                          .textTheme
+                                                          .bodyMedium!
+                                                          .copyWith(
+                                                              color:
+                                                                  Colors.white),
+                                                );
+                                              }),
+                                            ),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 10),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  StreamBuilder(
+                                                      stream: logic
+                                                          .indexLogic
+                                                          .audioPlayer
+                                                          .loopModeStream,
+                                                      builder: (context,
+                                                          AsyncSnapshot<
+                                                                  LoopMode>
+                                                              snapshot) {
+                                                        return IconButton(
+                                                          onPressed: logic
+                                                              .changeLoopMode,
+                                                          icon: Icon(
+                                                            snapshot.data ==
+                                                                    LoopMode.one
+                                                                ? Icons
+                                                                    .repeat_one_rounded
+                                                                : Icons
+                                                                    .repeat_rounded,
+                                                            size: 25,
+                                                            color: snapshot
+                                                                        .data ==
+                                                                    LoopMode.all
+                                                                ? ColorConstants
+                                                                    .gold
+                                                                : snapshot.data ==
+                                                                        LoopMode
+                                                                            .off
+                                                                    ? Colors
+                                                                        .white
+                                                                    : ColorConstants
+                                                                        .gold,
+                                                          ),
+                                                        );
+                                                      }),
+                                                  IconButton(
+                                                      onPressed: () {
+                                                        logic.clickedOnPrevi();
+                                                      },
+                                                      icon: const RotatedBox(
+                                                        quarterTurns: 270,
+                                                        child: Icon(
+                                                          Icons
+                                                              .fast_forward_rounded,
+                                                          size: 25,
+                                                          color: Colors.white,
+                                                        ),
+                                                      )),
+                                                  Obx(
+                                                    () => AnimatedSizeAndFade(
+                                                      child: logic.indexLogic
+                                                              .isPlaying.value
+                                                          ? IconButton(
+                                                              key:
+                                                                  const ValueKey(
+                                                                      0),
+                                                              onPressed: logic
+                                                                  .indexLogic
+                                                                  .playOrPause,
+                                                              icon: const Icon(
+                                                                Icons
+                                                                    .pause_outlined,
+                                                                size: 35,
+                                                                color: Colors
+                                                                    .white,
+                                                              ),
+                                                            )
+                                                          : IconButton(
+                                                              key:
+                                                                  const ValueKey(
+                                                                      1),
+                                                              onPressed: logic
+                                                                  .indexLogic
+                                                                  .playOrPause,
+                                                              icon: const Icon(
+                                                                Icons
+                                                                    .play_arrow_rounded,
+                                                                size: 35,
+                                                                color: Colors
+                                                                    .white,
+                                                              ),
+                                                            ),
+                                                    ),
+                                                  ),
+                                                  IconButton(
+                                                      onPressed: () {
+                                                        logic.clickedOnNext();
+                                                      },
+                                                      icon: const Icon(
                                                         Icons
                                                             .fast_forward_rounded,
                                                         size: 25,
                                                         color: Colors.white,
-                                                      ),
-                                                    )),
-                                                Obx(
-                                                  () => AnimatedSizeAndFade(
-                                                    child: logic.indexLogic
-                                                            .isPlaying.value
-                                                        ? IconButton(
-                                                            key: const ValueKey(
-                                                                0),
-                                                            onPressed: logic
-                                                                .indexLogic
-                                                                .playOrPause,
-                                                            icon: const Icon(
-                                                              Icons
-                                                                  .pause_outlined,
-                                                              size: 35,
-                                                              color:
-                                                                  Colors.white,
-                                                            ),
-                                                          )
-                                                        : IconButton(
-                                                            key: const ValueKey(
-                                                                1),
-                                                            onPressed: logic
-                                                                .indexLogic
-                                                                .playOrPause,
-                                                            icon: const Icon(
-                                                              Icons
-                                                                  .play_arrow_rounded,
-                                                              size: 35,
-                                                              color:
-                                                                  Colors.white,
-                                                            ),
-                                                          ),
-                                                  ),
-                                                ),
-                                                IconButton(
-                                                    onPressed: () {},
-                                                    icon: const Icon(
-                                                      Icons
-                                                          .fast_forward_rounded,
-                                                      size: 25,
-                                                      color: Colors.white,
-                                                    )),
-                                                IconButton(
-                                                    onPressed: () {},
-                                                    icon: const Icon(
-                                                      Icons.download_rounded,
-                                                      size: 25,
-                                                      color: Colors.white,
-                                                    ))
-                                              ],
-                                            ),
-                                          )
-                                        ],
-                                      )
-                                    : const SizedBox(
-                                        width: 1,
-                                      )),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              IconButton(
-                                  onPressed: () {
-                                    Get.bottomSheet(
-                                      menuBottomSheet(),
-                                    );
-                                  },
-                                  icon: const Icon(
-                                    Icons.menu,
-                                    size: 35,
-                                    color: Colors.white,
-                                  )),
-                            ],
-                          ),
-                          Obx(
-                            () => storiesContainer(context, logic),
-                          ),
-                          Obx(
-                            () => upNextContainer(context, logic),
-                          ),
-                        ],
-                      ),
-                    ))
-              ],
+                                                      )),
+                                                  IconButton(
+                                                      onPressed: () {
+                                                        logic.downloadMusic();
+                                                      },
+                                                      icon: const Icon(
+                                                        Icons.download_rounded,
+                                                        size: 25,
+                                                        color: Colors.white,
+                                                      ))
+                                                ],
+                                              ),
+                                            )
+                                          ],
+                                        )
+                                      : const SizedBox(
+                                          width: 1,
+                                        )),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                IconButton(
+                                    onPressed: () {
+                                      Get.bottomSheet(
+                                        menuBottomSheet(),
+                                        isScrollControlled: true,
+                                      );
+                                    },
+                                    icon: const Icon(
+                                      Icons.menu,
+                                      size: 35,
+                                      color: Colors.white,
+                                    )),
+                              ],
+                            ),
+                            Obx(
+                              () => storiesContainer(context, logic),
+                            ),
+                            Obx(
+                              () => upNextContainer(context, logic),
+                            ),
+                          ],
+                        ),
+                      ))
+                ],
+              ),
             ),
-          ),
+          )
         ],
       ),
     );
@@ -571,155 +633,204 @@ class _MusicPageState extends State<MusicPage> {
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           color: ColorConstants.backgroundColor),
-      child: Column(children: [
-        const SizedBox(
-          height: 15,
+      child: SingleChildScrollView(
+        child: Column(children: [
+          const SizedBox(
+            height: 15,
+          ),
+          Container(
+            width: 100,
+            height: 4,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(100), color: Colors.grey),
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          Row(
+            children: [
+              IconButton(
+                  onPressed: () {},
+                  icon: const Icon(
+                    Icons.share,
+                    color: Colors.white,
+                    size: 20,
+                  )),
+              Obx(
+                () => Text(
+                  logic.splashLogic.currentLanguage['share'],
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyLarge!
+                      .copyWith(color: Colors.white),
+                ),
+              )
+            ],
+          ),
+          Divider(
+            color: Colors.grey.withOpacity(0.2),
+          ),
+          InkWell(
+            onTap: () {
+              Get.back();
+              logic.addToFavorite();
+            },
+            child: Row(
+              children: [
+                IconButton(
+                  onPressed: () {},
+                  icon: const Icon(
+                    Icons.star_border_rounded,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+                Obx(
+                  () => Text(
+                    logic.splashLogic.currentLanguage['addToFavorite'],
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyLarge!
+                        .copyWith(color: Colors.white),
+                  ),
+                )
+              ],
+            ),
+          ),
+          Divider(
+            color: Colors.grey.withOpacity(0.2),
+          ),
+          InkWell(
+            onTap: () {
+              Get.back();
+              Get.bottomSheet(selectArtistBottomSheet(),
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent);
+            },
+            child: Row(
+              children: [
+                IconButton(
+                    onPressed: () {},
+                    icon: const Icon(
+                      Icons.upgrade_sharp,
+                      color: Colors.white,
+                      size: 20,
+                    )),
+                Obx(
+                  () => Text(
+                    logic.splashLogic.currentLanguage['goToArtist'],
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyLarge!
+                        .copyWith(color: Colors.white),
+                  ),
+                )
+              ],
+            ),
+          ),
+          Divider(
+            color: Colors.grey.withOpacity(0.2),
+          ),
+          InkWell(
+            onTap: logic.goToViewInfo,
+            child: Row(
+              children: [
+                IconButton(
+                    onPressed: () {},
+                    icon: const Icon(
+                      Icons.info_outline_rounded,
+                      color: Colors.white,
+                      size: 20,
+                    )),
+                Obx(
+                  () => Text(
+                    logic.splashLogic.currentLanguage['viewInfo'],
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyLarge!
+                        .copyWith(color: Colors.white),
+                  ),
+                )
+              ],
+            ),
+          ),
+          const SizedBox(
+            height: 40,
+          )
+        ]),
+      ),
+    );
+  }
+
+  Widget selectArtistBottomSheet() {
+    return SingleChildScrollView(
+      child: Container(
+        constraints: const BoxConstraints(
+          minHeight: 200,
         ),
-        Container(
-          width: 100,
-          height: 4,
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(100), color: Colors.grey),
-        ),
-        const SizedBox(
-          height: 10,
-        ),
-        Row(
+        decoration: BoxDecoration(
+            color: ColorConstants.backgroundColor,
+            borderRadius: const BorderRadius.only(
+                topRight: Radius.circular(10), topLeft: Radius.circular(10))),
+        child: Column(
           children: [
-            IconButton(
-                onPressed: () {},
-                icon: const Icon(
-                  Icons.share,
-                  color: Colors.white,
-                  size: 20,
-                )),
-            Obx(
-              () => Text(
-                logic.splashLogic.currentLanguage['share'],
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyLarge!
-                    .copyWith(color: Colors.white),
-              ),
-            )
+            const SizedBox(
+              height: 10,
+            ),
+            Container(
+              width: 100,
+              height: 4,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(100), color: Colors.grey),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            ListView.builder(
+              itemCount: logic.detailMediaModel.value!.data.artists.length,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemBuilder: (context, index) {
+                return Material(
+                  child: InkWell(
+                    onTap: () {
+                      Get.back();
+                      Get.to(() => ArtistDetailPage(
+                          logic.detailMediaModel.value!.data.artists[index]));
+                    },
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(10),
+                              child: Text(
+                                logic.detailMediaModel.value!.data
+                                    .artists[index].name,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge!
+                                    .copyWith(
+                                        color: Get.isDarkMode
+                                            ? Colors.white
+                                            : Colors.black),
+                              ),
+                            )
+                          ],
+                        ),
+                        Divider(
+                          color: Colors.grey.withOpacity(0.2),
+                        )
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
           ],
         ),
-        Divider(
-          color: Colors.grey.withOpacity(0.2),
-        ),
-        Row(
-          children: [
-            IconButton(
-                onPressed: () {},
-                icon: const Icon(
-                  Icons.share,
-                  color: Colors.white,
-                  size: 20,
-                )),
-            Obx(
-              () => Text(
-                logic.splashLogic.currentLanguage['addToPlayList'],
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyLarge!
-                    .copyWith(color: Colors.white),
-              ),
-            )
-          ],
-        ),
-        Divider(
-          color: Colors.grey.withOpacity(0.2),
-        ),
-        Row(
-          children: [
-            IconButton(
-                onPressed: () {},
-                icon: const Icon(
-                  Icons.share,
-                  color: Colors.white,
-                  size: 20,
-                )),
-            Obx(
-              () => Text(
-                logic.splashLogic.currentLanguage['addToPlayList'],
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyLarge!
-                    .copyWith(color: Colors.white),
-              ),
-            )
-          ],
-        ),
-        Divider(
-          color: Colors.grey.withOpacity(0.2),
-        ),
-        Row(
-          children: [
-            IconButton(
-                onPressed: () {},
-                icon: const Icon(
-                  Icons.share,
-                  color: Colors.white,
-                  size: 20,
-                )),
-            Obx(
-              () => Text(
-                logic.splashLogic.currentLanguage['addToPlayList'],
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyLarge!
-                    .copyWith(color: Colors.white),
-              ),
-            )
-          ],
-        ),
-        Divider(
-          color: Colors.grey.withOpacity(0.2),
-        ),
-        Row(
-          children: [
-            IconButton(
-                onPressed: () {},
-                icon: const Icon(
-                  Icons.share,
-                  color: Colors.white,
-                  size: 20,
-                )),
-            Obx(
-              () => Text(
-                logic.splashLogic.currentLanguage['addToPlayList'],
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyLarge!
-                    .copyWith(color: Colors.white),
-              ),
-            )
-          ],
-        ),
-        Divider(
-          color: Colors.grey.withOpacity(0.2),
-        ),
-        Row(
-          children: [
-            IconButton(
-                onPressed: () {},
-                icon: const Icon(
-                  Icons.share,
-                  color: Colors.white,
-                  size: 20,
-                )),
-            Obx(
-              () => Text(
-                logic.splashLogic.currentLanguage['addToPlayList'],
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyLarge!
-                    .copyWith(color: Colors.white),
-              ),
-            )
-          ],
-        ),
-      ]),
+      ),
     );
   }
 }

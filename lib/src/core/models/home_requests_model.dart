@@ -216,43 +216,41 @@ class Media {
 }
 
 class MediaChild {
-  MediaChild({
-    required this.id,
-    required this.title,
-    required this.description,
-    required this.shortDescription,
-    required this.meta,
-    required this.viewsCount,
-    required this.sharesCount,
-    required this.length,
-    required this.language,
-    required this.releaseDate,
-    required this.maturityRating,
-    required this.status,
-    required this.categoryId,
-    required this.userId,
-    required this.parentMediaId,
-    required this.createdAt,
-    required this.updatedAt,
-    required this.price,
-    required this.likesCount,
-    required this.type,
-    required this.originalSource,
-    required this.imageUrl,
-    required this.favoritesCount,
-    required this.isFavourite,
-    required this.seasonCount,
-    required this.episodeCount,
-    required this.pivot,
-    required this.category,
-    required this.content,
-  });
+  MediaChild(
+      {required this.id,
+      required this.title,
+      required this.description,
+      required this.shortDescription,
+      required this.viewsCount,
+      required this.sharesCount,
+      required this.length,
+      required this.language,
+      required this.releaseDate,
+      required this.maturityRating,
+      required this.status,
+      required this.categoryId,
+      required this.userId,
+      required this.parentMediaId,
+      required this.createdAt,
+      required this.updatedAt,
+      required this.price,
+      required this.likesCount,
+      required this.type,
+      required this.originalSource,
+      required this.imageUrl,
+      required this.favoritesCount,
+      required this.isFavourite,
+      required this.seasonCount,
+      required this.episodeCount,
+      required this.pivot,
+      required this.category,
+      required this.content});
 
   int id;
   Title title;
   Title description;
   Title shortDescription;
-  List<dynamic> meta;
+
   int viewsCount;
   int sharesCount;
   String length;
@@ -280,38 +278,38 @@ class MediaChild {
 
   factory MediaChild.fromJson(Map<String, dynamic> json) {
     return MediaChild(
-      id: json["id"],
-      title: json["title"].runtimeType == String
-          ? json["title"]
-          : Title.fromJson(json["title"]),
-      description: Title.fromJson(json["description"]),
-      shortDescription: Title.fromJson(json["short_description"]),
-      meta: List<dynamic>.from(json["meta"].map((x) => x)),
-      viewsCount: json["views_count"],
-      sharesCount: json["shares_count"],
-      length: json["length"],
-      language: json["language"],
-      releaseDate: DateTime.parse(json["release_date"]),
-      maturityRating: json["maturity_rating"],
-      status: json["status"],
-      categoryId: json["category_id"],
-      userId: json["user_id"],
-      parentMediaId: json["parent_media_id"],
-      createdAt: DateTime.parse(json["created_at"]),
-      updatedAt: DateTime.parse(json["updated_at"]),
-      price: json["price"],
-      likesCount: json["likes_count"],
-      type: json["type"],
-      originalSource: json["original_source"] ?? '',
-      imageUrl: json["image_url"],
-      favoritesCount: json["favoritesCount"],
-      isFavourite: json["isFavourite"],
-      seasonCount: json["seasonCount"],
-      episodeCount: json["episode_count"],
-      pivot: json["pivot"] == null ? null : Pivot.fromJson(json["pivot"]),
-      category: List<dynamic>.from(json["category"].map((x) => x)),
-      content: List<dynamic>.from(json["content"].map((x) => x)),
-    );
+        id: json["id"],
+        title: json["title"] == null
+            ? ''
+            : json["title"].runtimeType == String
+                ? json["title"]
+                : Title.fromJson(json["title"]),
+        description: Title.fromJson(json["description"]),
+        shortDescription: Title.fromJson(json["short_description"]),
+        viewsCount: json["views_count"],
+        sharesCount: json["shares_count"],
+        length: json["length"] ?? "",
+        language: json["language"],
+        releaseDate: DateTime.parse(json["release_date"]),
+        maturityRating: json["maturity_rating"],
+        status: json["status"],
+        categoryId: json["category_id"],
+        userId: json["user_id"],
+        parentMediaId: json["parent_media_id"],
+        createdAt: DateTime.parse(json["created_at"]),
+        updatedAt: DateTime.parse(json["updated_at"]),
+        price: json["price"] ?? 0,
+        likesCount: json["likes_count"],
+        type: json["type"],
+        originalSource: json["original_source"] ?? '',
+        imageUrl: json["image_url"] ?? '',
+        favoritesCount: json["favoritesCount"],
+        isFavourite: json["isFavourite"],
+        seasonCount: json["seasonCount"],
+        episodeCount: json["episode_count"],
+        pivot: json["pivot"] == null ? null : Pivot.fromJson(json["pivot"]),
+        category: List<dynamic>.from(json["category"].map((x) => x)),
+        content: List<dynamic>.from(json["content"].map((x) => x)));
   }
 
   Map<String, dynamic> toJson() => {
@@ -319,7 +317,6 @@ class MediaChild {
         "title": title.toJson(),
         "description": description.toJson(),
         "short_description": shortDescription.toJson(),
-        "meta": List<dynamic>.from(meta.map((x) => x)),
         "views_count": viewsCount,
         "shares_count": sharesCount,
         "length": length,
@@ -355,9 +352,17 @@ class Title {
 
   String en;
 
-  factory Title.fromJson(Map<String, dynamic> json) => Title(
+  factory Title.fromJson(Map<String, dynamic>? json) {
+    if (json == null) {
+      return Title(
+        en: "",
+      );
+    } else {
+      return Title(
         en: json["en"],
       );
+    }
+  }
 
   Map<String, dynamic> toJson() => {
         "en": en,
@@ -374,8 +379,8 @@ class Pivot {
   int mediaId;
 
   factory Pivot.fromJson(Map<String, dynamic> json) => Pivot(
-        categoryId: json["category_id"],
-        mediaId: json["media_id"],
+        categoryId: json["category_id"] ?? 0,
+        mediaId: json["media_id"] ?? 0,
       );
 
   Map<String, dynamic> toJson() => {
@@ -464,12 +469,14 @@ class Playlist {
   Title title;
   List<PlaylistChild> children;
 
-  factory Playlist.fromJson(Map<String, dynamic> json) => Playlist(
-        id: json["id"],
-        title: Title.fromJson(json["title"]),
-        children: List<PlaylistChild>.from(
-            json["children"].map((x) => PlaylistChild.fromJson(x))),
-      );
+  factory Playlist.fromJson(Map<String, dynamic> json) {
+    return Playlist(
+      id: json["id"] ?? 0,
+      title: Title.fromJson(json["title"]),
+      children: List<PlaylistChild>.from(
+          json["children"].map((x) => PlaylistChild.fromJson(x))),
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         "id": id,
@@ -529,8 +536,8 @@ class PlaylistChild {
         createdAt: DateTime.parse(json["created_at"]),
         updatedAt: DateTime.parse(json["updated_at"]),
         status: json["status"],
-        likesCount: json["likes_count"],
-        viewsCount: json["views_count"],
+        likesCount: json["likes_count"] ?? 0,
+        viewsCount: json["views_count"] ?? 0,
         isLiked: json["isLiked"] ?? false,
       );
 

@@ -15,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:lottie/lottie.dart';
@@ -85,7 +86,7 @@ class HomePage extends StatelessWidget {
                           ),
                           Obx(
                             () => Text(
-                              logic.splashLogic.currentLanguage['stories'],
+                              logic.splashLogic.currentLanguage['artists'],
                               style: Theme.of(context)
                                   .textTheme
                                   .headline4!
@@ -100,10 +101,10 @@ class HomePage extends StatelessWidget {
                           ),
                         ],
                       ),
-                      TextButton(
-                          onPressed: () {},
-                          child: Obx(() => Text(
-                              logic.splashLogic.currentLanguage['seeAll']))),
+                      // TextButton(
+                      //     onPressed: () {},
+                      //     child: Obx(() => Text(
+                      //         logic.splashLogic.currentLanguage['seeAll']))),
                     ],
                   ),
                   const SizedBox(
@@ -184,7 +185,7 @@ class HomePage extends StatelessWidget {
         );
       },
       openBuilder: (context, void Function({Object? returnValue}) action) {
-        return ArtistDetailPage(action, logic.artistList[index]);
+        return ArtistDetailPage(logic.artistList[index]);
       },
     );
   }
@@ -322,6 +323,7 @@ class HomePage extends StatelessWidget {
                                 .textTheme
                                 .bodyLarge!
                                 .copyWith(
+                                    fontFamily: '',
                                     color: Get.isDarkMode
                                         ? Colors.white
                                         : Colors.black),
@@ -335,7 +337,7 @@ class HomePage extends StatelessWidget {
             },
             openBuilder: (BuildContext context,
                 void Function({Object? returnValue}) action) {
-              return PlayListDeatilPage(action, currenPlayList.children[index]);
+              return PlayListDeatilPage(currenPlayList.children[index]);
             },
           ),
         ),
@@ -381,6 +383,11 @@ class HomePage extends StatelessWidget {
                           const SizedBox(
                             width: 10,
                           ),
+                          SvgPicture.asset(
+                            'assets/icons/music-tune.svg',
+                            width: 25,
+                            height: 25,
+                          )
                         ],
                       ),
                       TextButton(
@@ -445,6 +452,17 @@ class HomePage extends StatelessWidget {
                       height: Get.width * 0.35,
                       fit: BoxFit.fill,
                       progressIndicatorBuilder: (context, url, progress) {
+                        return Shimmer.fromColors(
+                          baseColor: const Color.fromARGB(255, 60, 60, 60),
+                          highlightColor: Colors.white.withOpacity(0.02),
+                          child: Container(
+                            width: Get.width * 0.35,
+                            height: Get.width * 0.35,
+                            color: Colors.black,
+                          ),
+                        );
+                      },
+                      errorWidget: (context, url, error) {
                         return Shimmer.fromColors(
                           baseColor: const Color.fromARGB(255, 60, 60, 60),
                           highlightColor: Colors.white.withOpacity(0.02),
@@ -559,7 +577,7 @@ class HomePage extends StatelessWidget {
             ),
             openBuilder: (BuildContext context,
                 void Function({Object? returnValue}) action) {
-              return VideoUiPage(action, mediaChild);
+              return VideoUiPage(mediaChild);
             },
           ),
         ),
@@ -657,6 +675,17 @@ class HomePage extends StatelessWidget {
                     width: Get.width * 0.4,
                     height: Get.width * 0.4,
                     progressIndicatorBuilder: (context, url, progress) {
+                      return Shimmer.fromColors(
+                        baseColor: const Color.fromARGB(255, 60, 60, 60),
+                        highlightColor: Colors.white.withOpacity(0.02),
+                        child: Container(
+                          width: Get.width * 0.4,
+                          height: Get.width * 0.4,
+                          color: Colors.black,
+                        ),
+                      );
+                    },
+                    errorWidget: (context, url, error) {
                       return Shimmer.fromColors(
                         baseColor: const Color.fromARGB(255, 60, 60, 60),
                         highlightColor: Colors.white.withOpacity(0.02),

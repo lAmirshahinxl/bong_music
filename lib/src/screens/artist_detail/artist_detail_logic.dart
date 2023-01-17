@@ -8,7 +8,6 @@ import 'package:get/get.dart';
 
 class ArtistDetailLogic extends GetxController {
   late Artist currentArtist;
-  late void Function({Object? returnValue}) action;
   Rxn<ArtistDetailModel> artistDetailModel = Rxn();
   final splashLogic = Get.find<SplashLogic>();
   final indexLogic = Get.find<IndexLogic>();

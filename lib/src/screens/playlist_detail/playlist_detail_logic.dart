@@ -1,7 +1,9 @@
 import 'package:bong/src/core/models/playlist_detail_model.dart';
 import 'package:bong/src/core/services/services.dart';
 import 'package:bong/src/screens/index/index_logic.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:bong/src/utils/utils.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+// import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -10,7 +12,6 @@ import '../../config/string_constants.dart';
 import '../../core/models/home_requests_model.dart';
 
 class PlayListDetailLogic extends GetxController {
-  late void Function({Object? returnValue}) action;
   late Rx<PlaylistChild> currenPlayList;
   final indexLogic = Get.find<IndexLogic>();
   Rxn<PlayListDetailModel> detailModel = Rxn();
@@ -44,15 +45,29 @@ class PlayListDetailLogic extends GetxController {
   }
 
   void downloadPlayList() async {
-    final taskId = await FlutterDownloader.enqueue(
-      url:
-          "$imageBaseUrlWithoutSlash${detailModel.value!.data.media.first.originalSource}",
-      headers: {},
-      savedDir: '/',
-      showNotification: true,
-      openFileFromNotification: true,
-    );
-    await FlutterDownloader.open(taskId: taskId!);
+    EasyLoading.show(status: "Downloading");
+    var fileInfo = await DefaultCacheManager().getFileFromCache(
+        "$imageBaseUrlWithoutSlash${detailModel.value!.data.media.first.originalSource}");
+    if (fileInfo == null) {
+      var file = await DefaultCacheManager().getSingleFile(
+          "$imageBaseUrlWithoutSlash${detailModel.value!.data.media.first.originalSource}");
+      indexLogic.addOfflineMusic(
+          MediaChild.fromJson(detailModel.value!.data.media.first.toJson()));
+      EasyLoading.showToast('File Added To Your PlayList');
+    } else {
+      EasyLoading.showToast('File Already Added To Playlist');
+    }
+    // EasyLoading.show(status: "Downloading");
+    // String downloadPath = await getDownloadPath() ?? '/';
+    // await FlutterDownloader.enqueue(
+    //     url:
+    //         "$imageBaseUrlWithoutSlash${detailModel.value!.data.media.first.originalSource}",
+    //     headers: {},
+    //     savedDir: downloadPath,
+    //     showNotification: true,
+    //     openFileFromNotification: true,
+    //     saveInPublicStorage: true);
+    // EasyLoading.dismiss();
   }
 
   void goToMusicPage(MediaChild mediaChild) {

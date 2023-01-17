@@ -45,64 +45,92 @@ class ProfilePage extends StatelessWidget {
                     child: Material(
                       child: InkWell(
                         onTap: () {
-                          if (index + 2 == logic.tabListStatics.length) {
+                          if (index == 0) {
+                            logic.goToViewedPlaylist();
+                          }
+                          if (index == 1) {
+                            logic.goToViewedMusic();
+                          }
+                          if (index == 2) {
+                            logic.goToLatestArtist();
+                          }
+                          if (index == 3) {
+                            logic.goToPodcast();
+                          }
+                          if (index == 4) {
+                            logic.goToViewedVideo();
+                          }
+                          if (index == 5) {
+                            logic.goToFavoritePage();
+                          }
+                          if (index == 6) {
                             logic.goToSettingPage();
                           }
-                          if (index + 1 == logic.tabListStatics.length) {
+                          if (index == 7) {
+                            logic.goToOfflineMusic();
+                          }
+                          if (index == 8) {
                             logic.goToLoginPage();
                           }
                         },
-                        child: Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 5),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Row(
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: SizedBox(
+                            width: Get.width,
+                            child: Column(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 5),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Icon(
-                                        logic.tabListStatics[index]['icon'],
-                                        size: 25,
-                                        color: Get.isDarkMode
-                                            ? Colors.white
-                                            : Colors.black,
+                                      Row(
+                                        children: [
+                                          Icon(
+                                            logic.tabListStatics[index]['icon'],
+                                            size: 25,
+                                            color: Get.isDarkMode
+                                                ? Colors.white
+                                                : Colors.black,
+                                          ),
+                                          const SizedBox(
+                                            width: 10,
+                                          ),
+                                          Text(
+                                            logic.tabListStatics[index]
+                                                    ['name'] ??
+                                                '',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyLarge!
+                                                .copyWith(
+                                                    color: Get.isDarkMode
+                                                        ? Colors.white
+                                                        : Colors.black),
+                                          )
+                                        ],
                                       ),
-                                      const SizedBox(
-                                        width: 10,
+                                      RotatedBox(
+                                        quarterTurns: 270,
+                                        child: Icon(
+                                          Icons.arrow_back_ios_new,
+                                          size: 15,
+                                          color: Get.isDarkMode
+                                              ? Colors.white
+                                              : Colors.black,
+                                        ),
                                       ),
-                                      Text(
-                                        logic.tabListStatics[index]['name'] ??
-                                            '',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyLarge!
-                                            .copyWith(
-                                                color: Get.isDarkMode
-                                                    ? Colors.white
-                                                    : Colors.black),
-                                      )
                                     ],
                                   ),
-                                  RotatedBox(
-                                    quarterTurns: 270,
-                                    child: Icon(
-                                      Icons.arrow_back_ios_new,
-                                      size: 15,
-                                      color: Get.isDarkMode
-                                          ? Colors.white
-                                          : Colors.black,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                ),
+                                Divider(
+                                  color: Colors.grey.withOpacity(0.3),
+                                )
+                              ],
                             ),
-                            Divider(
-                              color: Colors.grey.withOpacity(0.3),
-                            )
-                          ],
+                          ),
                         ),
                       ),
                     ),
@@ -119,15 +147,20 @@ class ProfilePage extends StatelessWidget {
         const SizedBox(
           height: 20,
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: Text(
-            'Recently Added',
-            style: Theme.of(context)
-                .textTheme
-                .headline3!
-                .copyWith(color: Get.isDarkMode ? Colors.white : Colors.black),
-          ),
+        Obx(
+          () {
+            if (logic.indexLogic.recentlyPlayed.isEmpty) {
+              return const SizedBox();
+            }
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Text(
+                'Recently Added',
+                style: Theme.of(context).textTheme.headline3!.copyWith(
+                    color: Get.isDarkMode ? Colors.white : Colors.black),
+              ),
+            );
+          },
         ),
         const SizedBox(
           height: 10,
@@ -245,12 +278,11 @@ class ProfilePage extends StatelessWidget {
             openBuilder: (context, action) {
               if (logic.indexLogic.recentlyPlayed[index].originalSource
                   .contains('.mp4')) {
-                return VideoUiPage(
-                    action, logic.indexLogic.recentlyPlayed[index]);
+                return VideoUiPage(logic.indexLogic.recentlyPlayed[index]);
               } else {
                 logic.indexLogic.selectedMusic.value =
                     logic.indexLogic.recentlyPlayed[index];
-                return const MusicPage();
+                return MusicPage();
               }
             },
           ),

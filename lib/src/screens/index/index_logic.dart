@@ -1,5 +1,6 @@
 import 'package:bong/src/core/models/home_requests_model.dart';
 import 'package:bong/src/screens/splash/splash_logic.dart';
+import 'package:bong/src/widgets/ask_for_login_bottomsheet.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -14,11 +15,13 @@ class IndexLogic extends GetxController {
   final audioPlayer = AudioPlayer();
   Rxn<MediaChild> selectedMusic = Rxn();
   Rx<bool> isPlaying = false.obs;
-  Rx<bool> loopMode = false.obs;
   Rx<Duration> currentDuration = const Duration(seconds: 0).obs;
   Rx<Duration> totalDuration = const Duration(seconds: 0).obs;
   Rx<Duration> buffredDuration = const Duration(seconds: 0).obs;
   RxList<MediaChild> recentlyPlayed = RxList();
+  RxList<MediaChild> offlineMusicUrlList = RxList();
+  List<LoopMode> loopModeList = [LoopMode.off, LoopMode.all, LoopMode.one];
+  Rx<int> selectedLoopModeIndex = 0.obs;
 
   @override
   void onInit() {
@@ -31,8 +34,15 @@ class IndexLogic extends GetxController {
       (callback) => addToRecentlyViewed(callback),
     );
     getRecentlyPlayed();
+    getOfflineMusics();
     initListener();
     super.onInit();
+  }
+
+  @override
+  void onReady() {
+    super.onReady();
+    showSuggestLogin();
   }
 
   void initListener() async {
@@ -52,11 +62,7 @@ class IndexLogic extends GetxController {
       isPlaying.value = event.playing;
     });
     audioPlayer.loopModeStream.listen((LoopMode event) {
-      if (event == LoopMode.off) {
-        loopMode.value = false;
-      } else {
-        loopMode.value = true;
-      }
+      print('loop changed : ${event.toString()}');
     });
   }
 
@@ -114,11 +120,45 @@ class IndexLogic extends GetxController {
     getRecentlyPlayed();
   }
 
+  void addOfflineMusic(MediaChild? mediaChild) {
+    if (mediaChild == null) return;
+    if (offlineMusicUrlList
+            .firstWhereOrNull((element) => element.id == mediaChild.id) !=
+        null) return;
+    offlineMusicUrlList.add(mediaChild);
+    GetStorage().write('offlineMusic', offlineMusicUrlList.toJson());
+    getOfflineMusics();
+  }
+
   void getRecentlyPlayed() {
-    recentlyPlayed.value = List.from(GetStorage().read('recently') == null
-        ? List.from([])
-        : List<MediaChild>.from(
-            GetStorage().read('recently').map((x) => MediaChild.fromJson(x))));
+    try {
+      recentlyPlayed.value = List.from(GetStorage().read('recently') == null
+          ? List.from([])
+          : List<MediaChild>.from(GetStorage()
+              .read('recently')
+              .map((x) => MediaChild.fromJson(x))));
+    } catch (e) {}
     print("recentlyPlayed.length : ${recentlyPlayed.length}");
+  }
+
+  void getOfflineMusics() {
+    try {
+      offlineMusicUrlList.value = GetStorage().hasData('offlineMusic')
+          ? List<MediaChild>.from(GetStorage()
+              .read('offlineMusic')
+              .map((x) => MediaChild.fromJson(x)))
+          : List.from([]);
+    } catch (e) {}
+  }
+
+  void showSuggestLogin() {
+    if (!GetStorage().hasData('token') && !GetStorage().hasData('one')) {
+      Get.toNamed('/suggest');
+    } else if (!GetStorage().hasData('token')) {
+      Get.bottomSheet(const AskForLoginBottomsheet(),
+          backgroundColor: Colors.transparent,
+          isScrollControlled: true,
+          isDismissible: false);
+    }
   }
 }

@@ -13,8 +13,13 @@ class VideoLogic extends GetxController {
   Rxn<ChewieController> chewieController = Rxn();
   @override
   void onInit() {
-    videoPlayerController = VideoPlayerController.network(
-        '$imageBaseUrl/${videoUiLogic.currenMedia.originalSource}');
+    if (videoUiLogic.offlineFile != null) {
+      videoPlayerController =
+          VideoPlayerController.file(videoUiLogic.offlineFile!);
+    } else {
+      videoPlayerController = VideoPlayerController.network(
+          '$imageBaseUrl/${videoUiLogic.currenMedia.originalSource}');
+    }
     initVideo();
     super.onInit();
   }
@@ -35,16 +40,22 @@ class VideoLogic extends GetxController {
   Future<void> reBuild() async {
     videoPlayerController.dispose();
     chewieController.value?.dispose();
-    videoPlayerController = VideoPlayerController.network(
-        'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4');
+    if (videoUiLogic.offlineFile != null) {
+      videoPlayerController =
+          VideoPlayerController.file(videoUiLogic.offlineFile!);
+    } else {
+      videoPlayerController = VideoPlayerController.network(
+          '$imageBaseUrl/${videoUiLogic.currenMedia.originalSource}');
+    }
     initVideo();
   }
 
   void initVideo() async {
     await videoPlayerController.initialize();
+
     chewieController.value = ChewieController(
       videoPlayerController: videoPlayerController,
-      autoPlay: false,
+      autoPlay: true,
       looping: true,
     );
   }

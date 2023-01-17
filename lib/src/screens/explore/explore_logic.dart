@@ -35,19 +35,23 @@ class ExploreLogic extends GetxController {
     tabListStatics.addAll([
       {
         "name": splashLogic.currentLanguage['newMusic'],
-        "icon": Icons.music_note_rounded
+        "icon": Icons.music_note_rounded,
+        "route": "/new_music",
       },
       {
         "name": splashLogic.currentLanguage['musicVideos'],
-        "icon": Icons.video_collection_rounded
+        "icon": Icons.video_collection_rounded,
+        "route": "/music_videos",
       },
       {
         "name": splashLogic.currentLanguage['latestPodcasts'],
-        "icon": Icons.podcasts_rounded
+        "icon": Icons.podcasts_rounded,
+        "route": "/latest_podcast",
       },
       {
         "name": splashLogic.currentLanguage['upcomingEvents'],
-        "icon": Icons.event_available_rounded
+        "icon": Icons.event_available_rounded,
+        "route": "/upcoming_events",
       },
     ]);
   }

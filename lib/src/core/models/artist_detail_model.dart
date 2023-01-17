@@ -65,7 +65,7 @@ class Data {
   int active;
   String language;
   dynamic notification;
-  DataMeta meta;
+  DataMeta? meta;
   dynamic rememberToken;
   DateTime createdAt;
   DateTime updatedAt;
@@ -87,7 +87,7 @@ class Data {
         active: json["active"],
         language: json["language"],
         notification: json["notification"],
-        meta: DataMeta.fromJson(json["meta"]),
+        meta: json["meta"] == null ? null : DataMeta.fromJson(json["meta"]),
         rememberToken: json["remember_token"],
         createdAt: DateTime.parse(json["created_at"]),
         updatedAt: DateTime.parse(json["updated_at"]),
@@ -112,7 +112,7 @@ class Data {
         "active": active,
         "language": language,
         "notification": notification,
-        "meta": meta.toJson(),
+        "meta": meta?.toJson(),
         "remember_token": rememberToken,
         "created_at": createdAt.toIso8601String(),
         "updated_at": updatedAt.toIso8601String(),
@@ -270,9 +270,17 @@ class Description {
 
   String en;
 
-  factory Description.fromJson(Map<String, dynamic> json) => Description(
+  factory Description.fromJson(Map<String, dynamic>? json) {
+    if (json == null) {
+      return Description(
+        en: "",
+      );
+    } else {
+      return Description(
         en: json["en"],
       );
+    }
+  }
 
   Map<String, dynamic> toJson() => {
         "en": en,
@@ -405,7 +413,7 @@ class DataMeta {
   String twitterId;
 
   factory DataMeta.fromJson(Map<String, dynamic> json) => DataMeta(
-        bio: json["bio"],
+        bio: json["bio"] ?? "",
         dateOfBirth: json["date_of_birth"],
         instagramId: json["instagram_id"],
         facebookId: json["facebook_id"],

@@ -32,7 +32,7 @@ class IndexPage extends StatelessWidget {
                 logic.headerText.value,
                 key: ValueKey(logic.selectedIndex.value),
                 style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                    color: Get.isDarkMode ? Colors.white : Colors.black,
+                    color: Get.isDarkMode ? ColorConstants.gold : Colors.black,
                     fontSize: 20),
               )),
         )),
@@ -63,10 +63,19 @@ class IndexPage extends StatelessWidget {
       bottomNavigationBar: Obx(
         () => FlashyTabBar(
           selectedIndex: logic.selectedIndex.value,
+          shadows: [
+            BoxShadow(
+                color: Get.isDarkMode
+                    ? ColorConstants.backgroundColor
+                    : Colors.white,
+                blurRadius: 20,
+                spreadRadius: 10,
+                offset: Offset(0, -1))
+          ],
           backgroundColor: Get.isDarkMode
               ? const Color.fromARGB(174, 44, 44, 44)
               : Colors.white,
-          showElevation: false,
+          showElevation: true,
           animationDuration: const Duration(milliseconds: 250),
           onItemSelected: (index) => logic.selectedIndex.value = index,
           items: [

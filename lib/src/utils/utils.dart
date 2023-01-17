@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:persian_number_utility/persian_number_utility.dart';
 
 import '../config/color_constants.dart';
@@ -91,4 +94,33 @@ InputDecoration defTextfieldDecoration() {
       contentPadding: const EdgeInsets.symmetric(horizontal: 10),
       filled: true,
       fillColor: Colors.grey.withOpacity(0.2));
+}
+
+Future<String?> getDownloadPath() async {
+  Directory? directory;
+  try {
+    if (Platform.isIOS) {
+      directory = await getApplicationDocumentsDirectory();
+    } else {
+      directory = Directory('/storage/emulated/0/Download');
+      // Put file in global download folder, if for an unknown reason it didn't exist, we fallback
+      // ignore: avoid_slow_async_io
+      if (!await directory.exists()) {
+        directory = await getExternalStorageDirectory();
+      }
+    }
+  } catch (err, stack) {
+    print("Cannot get download folder path");
+  }
+  return directory?.path;
+}
+
+Future<String?> getAppPath() async {
+  Directory? directory;
+  try {
+    directory = await getApplicationDocumentsDirectory();
+  } catch (err, stack) {
+    print("Cannot get download folder path");
+  }
+  return directory?.path;
 }

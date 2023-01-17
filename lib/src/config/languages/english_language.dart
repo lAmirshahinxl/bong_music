@@ -1,10 +1,10 @@
 class EnglishLanguage {
   static Map get data => {
         "appName": "bong music",
-        "home": "home",
-        "explore": "explore",
-        "search": "search",
-        "profile": "profile",
+        "home": "Home",
+        "explore": "Explore",
+        "search": "Search",
+        "profile": "Profile",
         "stories": "Stories",
         "seeAll": "See All",
         "playList": "PlayList",
@@ -45,5 +45,13 @@ class EnglishLanguage {
         "selectArtist": "Select Artist",
         "selectCategory": "Select Category",
         "forYou": "For you",
+        "podcast": "Podcasts",
+        "favorite": "Favorite",
+        "addToFavorite": "Add To Favorite",
+        "goToArtist": "Go To Artist",
+        "viewInfo": "View Info",
+        "myPlaylist": "My Playlist",
+        "areForgetPassword": "Forgot your password?",
+        "recovery": "Recovery",
       };
 }

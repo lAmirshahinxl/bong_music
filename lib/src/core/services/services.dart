@@ -2,9 +2,14 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:bong/src/core/models/artist_detail_model.dart';
+import 'package:bong/src/core/models/category_childs_model.dart';
 import 'package:bong/src/core/models/get_artist_model.dart';
 import 'package:bong/src/core/models/get_category_model.dart';
+import 'package:bong/src/core/models/get_latest_artist_model.dart';
+import 'package:bong/src/core/models/get_new_music_model.dart';
 import 'package:bong/src/core/models/get_search_model.dart';
+import 'package:bong/src/core/models/get_upcoming_events_model.dart';
+import 'package:bong/src/core/models/get_viewed_playlist_model.dart';
 import 'package:bong/src/core/models/home_requests_model.dart';
 import 'package:bong/src/core/models/login_model.dart';
 import 'package:bong/src/core/models/playlist_detail_model.dart';
@@ -68,8 +73,22 @@ class RemoteService {
 
   Future<List> playListDetail(int playListId) async {
     try {
-      var response = await dio.get('/app/playlists/$playListId');
+      var header = {"Authorization": "Bearer ${GetStorage().read("token")}"};
+      var response = await dio.get('/app/playlists/$playListId',
+          options: Options(headers: header));
       return [PlayListDetailModel.fromJson(response.data), null];
+    } on DioError catch (e) {
+      return [null, "Error Data"];
+    }
+  }
+
+  Future<List> getPlaylistChildCategory(int parentCategoryId) async {
+    try {
+      var header = {"Authorization": "Bearer ${GetStorage().read("token")}"};
+      var response = await dio.get('/app/playlists',
+          queryParameters: {'category_id': parentCategoryId},
+          options: Options(headers: header));
+      return [CatgeoryChildsModel.fromJson(response.data), null];
     } on DioError catch (e) {
       return [null, "Error Data"];
     }
@@ -77,7 +96,10 @@ class RemoteService {
 
   Future<List> getArtistDetail(int artistId) async {
     try {
-      var response = await dio.get('/app/artists/$artistId');
+      var header = {"Authorization": "Bearer ${GetStorage().read("token")}"};
+      print('/app/artists/$artistId');
+      var response = await dio.get('/app/artists/$artistId',
+          options: Options(headers: header));
       return [ArtistDetailModel.fromJson(response.data), null];
     } on DioError catch (e) {
       print(e.toString());
@@ -156,13 +178,16 @@ class RemoteService {
     }
   }
 
-  Future<List> getCategoreis() async {
+  Future<List> getCategoreis({int? parentId}) async {
     try {
       var header = GetStorage().hasData("token")
           ? {"Authorization": "Bearer ${GetStorage().read("token")}"}
           : null;
-      var response =
-          await dio.get('/app/categories', options: Options(headers: header));
+      var response = await dio.get('/app/categories',
+          queryParameters: {
+            'parent_id': parentId == null ? '' : parentId.toString()
+          },
+          options: Options(headers: header));
       return [GetCategoriesModel.fromJson(response.data), null];
     } on DioError catch (e) {
       return [null, "Error Data"];
@@ -176,6 +201,7 @@ class RemoteService {
           : null;
       var response = await dio.get('/app/media/$mediaId',
           options: Options(headers: header));
+      print(response.data);
       return [DetailMediaModel.fromJson(response.data), null];
     } on DioError catch (e) {
       return [null, "Error Data"];
@@ -195,23 +221,95 @@ class RemoteService {
     }
   }
 
-  // Future<List> getMarketAssets() async {
-  //   try {
-  //     var response = await dio.get('/market/stats?quote_asset=IRT');
-  //     MarketStatsModel model = MarketStatsModel.fromJson(response.data);
-  //     List<BtCIRT> finalList = [];
-  //     model.toJson().forEach((final String key, final value) {
-  //       finalList.add(BtCIRT.fromJson(value));
-  //     });
-  //     return [finalList, null];
-  //   } on DioError catch (e) {
-  //     if (e.response?.statusCode == 401) {
-  //       return [null, 401];
-  //     } else {
-  //       var error = MarketAssetsErrorModel.fromJson(e.response?.data);
-  //       return [null, error.error];
-  //     }
-  //   }
-  // }
+  Future<List> getNewMusicList(int page) async {
+    try {
+      var header = GetStorage().hasData("token")
+          ? {"Authorization": "Bearer ${GetStorage().read("token")}"}
+          : null;
+      var response = await dio.get('/app/media?sort=latest&page=$page',
+          options: Options(headers: header));
+      return [GetNewMusicModel.fromJson(response.data), null];
+    } on DioError catch (e) {
+      return [null, "Error Data"];
+    }
+  }
 
+  Future<List> getMusicVideos(int page) async {
+    try {
+      var header = GetStorage().hasData("token")
+          ? {"Authorization": "Bearer ${GetStorage().read("token")}"}
+          : null;
+      var response = await dio.get('/app/media?page=$page&filter=musicvideo',
+          options: Options(headers: header));
+      return [GetNewMusicModel.fromJson(response.data), null];
+    } on DioError catch (e) {
+      return [null, "Error Data"];
+    }
+  }
+
+  Future<List> getLatestPodcasts(int page) async {
+    try {
+      var header = GetStorage().hasData("token")
+          ? {"Authorization": "Bearer ${GetStorage().read("token")}"}
+          : null;
+      var response = await dio.get(
+          '/app/media?sort=latest&page=$page&filter=podcast',
+          options: Options(headers: header));
+      return [GetNewMusicModel.fromJson(response.data), null];
+    } on DioError catch (e) {
+      return [null, "Error Data"];
+    }
+  }
+
+  Future<List> getViewedArtist(int page) async {
+    try {
+      var header = GetStorage().hasData("token")
+          ? {"Authorization": "Bearer ${GetStorage().read("token")}"}
+          : null;
+      var response = await dio.get('/app/artists/viewed',
+          options: Options(headers: header));
+      return [GetLatestArtistModel.fromJson(response.data), null];
+    } on DioError catch (e) {
+      return [null, "Error Data"];
+    }
+  }
+
+  Future<List> getViewdPlaylist(int page) async {
+    try {
+      var header = GetStorage().hasData("token")
+          ? {"Authorization": "Bearer ${GetStorage().read("token")}"}
+          : null;
+      var response = await dio.get('/app/playlists/viewed',
+          options: Options(headers: header));
+      return [GetViewedPlaylist.fromJson(response.data), null];
+    } on DioError catch (e) {
+      return [null, "Error Data"];
+    }
+  }
+
+  Future<List> getViewedMedia(int page) async {
+    try {
+      var header = GetStorage().hasData("token")
+          ? {"Authorization": "Bearer ${GetStorage().read("token")}"}
+          : null;
+      var response =
+          await dio.get('/app/media/viewed', options: Options(headers: header));
+      return [GetNewMusicModel.fromJson(response.data), null];
+    } on DioError catch (e) {
+      return [null, "Error Data"];
+    }
+  }
+
+  Future<List> getUpcomingEvents() async {
+    try {
+      var header = GetStorage().hasData("token")
+          ? {"Authorization": "Bearer ${GetStorage().read("token")}"}
+          : null;
+      var response = await dio.get('/app/upcoming-events',
+          options: Options(headers: header));
+      return [GetUpcomingEventsModel.fromJson(response.data), null];
+    } on DioError catch (e) {
+      return [null, "Error Data"];
+    }
+  }
 }

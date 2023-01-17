@@ -13,10 +13,9 @@ import '../../core/models/home_requests_model.dart';
 import '../../widgets/bottom_player.dart';
 
 class PlayListDeatilPage extends StatefulWidget {
-  late void Function({Object? returnValue}) action;
   late PlaylistChild currenPlayList;
 
-  PlayListDeatilPage(this.action, this.currenPlayList, {super.key});
+  PlayListDeatilPage(this.currenPlayList, {super.key});
 
   @override
   State<PlayListDeatilPage> createState() => _PlayListDeatilPageState();
@@ -28,7 +27,6 @@ class _PlayListDeatilPageState extends State<PlayListDeatilPage> {
   @override
   void initState() {
     logic.currenPlayList = widget.currenPlayList.obs;
-    logic.action = widget.action;
     super.initState();
   }
 
@@ -63,7 +61,7 @@ class _PlayListDeatilPageState extends State<PlayListDeatilPage> {
                     Visibility(
                       visible: true,
                       child: IconButton(
-                        onPressed: () => logic.action.call(),
+                        onPressed: () => Get.back(),
                         icon: Icon(
                           Icons.arrow_back_ios,
                           color: Get.isDarkMode ? Colors.white : Colors.black,
@@ -161,28 +159,33 @@ class _PlayListDeatilPageState extends State<PlayListDeatilPage> {
                           ),
                           Row(
                             children: [
-                              IconButton(
-                                  onPressed: () => logic.addToFavorite(),
-                                  icon: Obx(
-                                    () => Icon(
-                                      logic.currenPlayList.value.isLiked
-                                          ? Icons.star_rounded
-                                          : Icons.star_outline_rounded,
+                              Material(
+                                child: IconButton(
+                                    onPressed: () => logic.addToFavorite(),
+                                    icon: Obx(
+                                      () => Icon(
+                                        logic.currenPlayList.value.isLiked
+                                            ? Icons.star_rounded
+                                            : Icons.star_outline_rounded,
+                                        size: 25,
+                                        color:
+                                            logic.currenPlayList.value.isLiked
+                                                ? ColorConstants.gold
+                                                : Colors.white,
+                                      ),
+                                    )),
+                              ),
+                              Material(
+                                child: IconButton(
+                                    onPressed: () => logic.downloadPlayList(),
+                                    icon: Icon(
+                                      Icons.download_rounded,
                                       size: 25,
-                                      color: logic.currenPlayList.value.isLiked
-                                          ? ColorConstants.gold
-                                          : Colors.white,
-                                    ),
-                                  )),
-                              IconButton(
-                                  onPressed: () => logic.downloadPlayList(),
-                                  icon: Icon(
-                                    Icons.download_rounded,
-                                    size: 25,
-                                    color: Get.isDarkMode
-                                        ? Colors.white
-                                        : Colors.black,
-                                  )),
+                                      color: Get.isDarkMode
+                                          ? Colors.white
+                                          : Colors.black,
+                                    )),
+                              ),
                             ],
                           )
                         ],

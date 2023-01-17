@@ -11,29 +11,28 @@ enum AccountState { login, register }
 
 class LoginLogic extends GetxController with GetSingleTickerProviderStateMixin {
   final splashLogic = Get.find<SplashLogic>();
-  final profileLogic = Get.find<ProfileLogic>();
   Rx<AccountState> accountState = AccountState.login.obs;
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController rePasswordController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
   TextEditingController nameController = TextEditingController();
-  late AnimationController animationController;
+  // late AnimationController animationController;
   @override
   void onInit() {
     super.onInit();
-    animationController = AnimationController(vsync: this);
+    // animationController = AnimationController(vsync: this);
   }
 
   @override
   void onClose() {
-    animationController.dispose();
+    // animationController.dispose();
     super.onClose();
   }
 
   void changeState(AccountState state) {
-    animationController.reset();
-    animationController.forward();
+    // animationController.reset();
+    // animationController.forward();
     accountState.value = state;
   }
 
@@ -57,12 +56,15 @@ class LoginLogic extends GetxController with GetSingleTickerProviderStateMixin {
     LoginModel loginModel = res[0];
     GetStorage().write('token', loginModel.token);
     GetStorage().write('email', loginModel.user.email);
-    profileLogic.tabListStatics.last = {
-      "name": GetStorage().hasData('token')
-          ? splashLogic.currentLanguage['logout']
-          : splashLogic.currentLanguage['login'],
-      "icon": Icons.login_rounded
-    };
+    try {
+      final profileLogic = Get.find<ProfileLogic>();
+      profileLogic.tabListStatics.last = {
+        "name": GetStorage().hasData('token')
+            ? splashLogic.currentLanguage['logout']
+            : splashLogic.currentLanguage['login'],
+        "icon": Icons.login_rounded
+      };
+    } catch (e) {}
     Get.offAndToNamed('/select_artist');
   }
 
