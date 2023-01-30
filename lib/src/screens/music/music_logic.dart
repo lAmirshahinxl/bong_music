@@ -1,7 +1,9 @@
-import 'package:bong/src/core/models/artist_detail_model.dart'
-    as artistDetailModel;
+import 'dart:math';
+
 import 'package:bong/src/core/models/detail_media_model.dart'
     as mediaDetailModel;
+import 'package:bong/src/core/models/artist_detail_model.dart'
+    as artistDetailModel;
 import 'package:bong/src/core/models/home_requests_model.dart';
 import 'package:bong/src/core/services/services.dart';
 import 'package:bong/src/screens/index/index_logic.dart';
@@ -15,29 +17,35 @@ import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import '../../config/string_constants.dart';
 import '../../utils/utils.dart';
+import '../login/login_view.dart';
+import '../media_info_main/media_info_main_view.dart';
 
 class MusicLogic extends GetxController {
   Rx<bool> showAnimation = false.obs;
   final splashLogic = Get.find<SplashLogic>();
   final indexLogic = Get.find<IndexLogic>();
-  RxList<artistDetailModel.Story> storiesList = RxList();
-  RxList<mediaDetailModel.Data> upnextList = RxList();
-  Rxn<mediaDetailModel.DetailMediaModel> detailMediaModel = Rxn();
-  int upnextIndex = 0;
+
   bool fromBottom = false;
 
   @override
   void onReady() {
     super.onReady();
-    print('fromBottom : $fromBottom');
     if (!fromBottom) playMusic();
     Future.delayed(
-      const Duration(milliseconds: 500),
+      const Duration(milliseconds: 100),
       () {
         showAnimation.value = true;
       },
     );
     callDetailApi();
+  }
+
+  @override
+  void onClose() {
+    if (!indexLogic.audioPlayer.playing) {
+      indexLogic.audioPlayer.stop();
+    }
+    super.onClose();
   }
 
   void back() => Get.back();
@@ -53,6 +61,11 @@ class MusicLogic extends GetxController {
     });
     indexLogic.audioPlayer.positionStream.listen((Duration event) {
       indexLogic.currentDuration.value = event;
+      if (indexLogic.totalDuration.value <=
+              (event + const Duration(seconds: 1)) &&
+          indexLogic.shuffle.value) {
+        clickedOnNextRandom();
+      }
     });
     indexLogic.audioPlayer.playerStateStream.listen((PlayerState event) {
       indexLogic.isPlaying.value = event.playing;
@@ -100,16 +113,18 @@ class MusicLogic extends GetxController {
       return;
     }
 
-    detailMediaModel.value = res[0];
-    storiesList.clear();
-    upnextList.clear();
-    storiesList.value = List.from(res[0].data.stories);
-    upnextList.value = List.from(res[0].data.upNext);
+    indexLogic.detailMediaModel.value = res[0];
+    indexLogic.storiesList.clear();
+    indexLogic.upnextList.clear();
+    indexLogic.storiesList.value = List.from(res[0].data.stories);
+    indexLogic.upnextList.value = List.from(res[0].data.upNext);
+
+    await RemoteService().incrasePlay(indexLogic.selectedMusic.value!.id);
   }
 
   void clickedOnItemUpnext(int index) {
     indexLogic.selectedMusic.value =
-        MediaChild.fromJson(upnextList[index].toJson());
+        MediaChild.fromJson(indexLogic.upnextList[index].toJson());
     playMusic();
     callDetailApi();
   }
@@ -117,6 +132,7 @@ class MusicLogic extends GetxController {
   void addToFavorite() async {
     if (!GetStorage().hasData('token')) {
       EasyLoading.showToast('please login first');
+      Get.to(() => LoginPage(), duration: const Duration(seconds: 1));
       return;
     }
     EasyLoading.show(status: "Please Wait");
@@ -128,31 +144,42 @@ class MusicLogic extends GetxController {
     indexLogic.selectedMusic.refresh();
   }
 
+  void addToFavoriteUpnext(mediaDetailModel.Data upnextItem) async {
+    if (!GetStorage().hasData('token')) {
+      EasyLoading.showToast('please login first');
+      return;
+    }
+    EasyLoading.show(status: "Please Wait");
+    await RemoteService().toggleFavorite(upnextItem.id, "media");
+    EasyLoading.showToast("SuccessFul");
+    upnextItem.isFavourite = !upnextItem.isFavourite;
+  }
+
   void clickedOnNext() {
-    print(upnextIndex);
-    if (upnextIndex + 1 == upnextList.length) {
-      upnextIndex = 0;
-      indexLogic.selectedMusic.value =
-          MediaChild.fromJson(upnextList[upnextIndex].toJson());
+    print(indexLogic.upnextIndex);
+    if (indexLogic.upnextIndex + 1 == indexLogic.upnextList.length) {
+      indexLogic.upnextIndex = 0;
+      indexLogic.selectedMusic.value = MediaChild.fromJson(
+          indexLogic.upnextList[indexLogic.upnextIndex].toJson());
       playMusic();
       callDetailApi();
       return;
     }
-    upnextIndex++;
-    indexLogic.selectedMusic.value =
-        MediaChild.fromJson(upnextList[upnextIndex].toJson());
+    indexLogic.upnextIndex++;
+    indexLogic.selectedMusic.value = MediaChild.fromJson(
+        indexLogic.upnextList[indexLogic.upnextIndex].toJson());
     playMusic();
     callDetailApi();
   }
 
   void clickedOnPrevi() {
-    print(upnextIndex);
-    if (upnextIndex == 0) {
+    print(indexLogic.upnextIndex);
+    if (indexLogic.upnextIndex == 0) {
       return;
     }
-    upnextIndex--;
-    indexLogic.selectedMusic.value =
-        MediaChild.fromJson(upnextList[upnextIndex].toJson());
+    indexLogic.upnextIndex--;
+    indexLogic.selectedMusic.value = MediaChild.fromJson(
+        indexLogic.upnextList[indexLogic.upnextIndex].toJson());
     playMusic();
     callDetailApi();
   }
@@ -184,5 +211,25 @@ class MusicLogic extends GetxController {
     //     showNotification: true,
     //     openFileFromNotification: true,
     //     saveInPublicStorage: true);
+  }
+
+  void goToViewInfoUpnext(mediaDetailModel.Data upnextItem) {
+    Get.back();
+    Get.to(() => const MediaInfoMainPage(), arguments: {
+      "media": artistDetailModel.Media.fromJson(upnextItem.toJson())
+    });
+  }
+
+  void changeSuffle() {
+    indexLogic.shuffle.value = !indexLogic.shuffle.value;
+  }
+
+  void clickedOnNextRandom() {
+    int randomInt = Random().nextInt(indexLogic.upnextList.length);
+    indexLogic.upnextIndex = randomInt;
+    indexLogic.selectedMusic.value =
+        MediaChild.fromJson(indexLogic.upnextList[randomInt].toJson());
+    playMusic();
+    callDetailApi();
   }
 }

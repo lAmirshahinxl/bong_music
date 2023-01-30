@@ -107,7 +107,7 @@ class Data {
       shortDescription: Description.fromJson(json["short_description"]),
       viewsCount: json["views_count"],
       sharesCount: json["shares_count"],
-      length: json["length"],
+      length: json["length"] ?? "",
       language: json["language"],
       releaseDate: DateTime.parse(json["release_date"]),
       maturityRating: json["maturity_rating"],
@@ -116,12 +116,12 @@ class Data {
       parentMediaId: json["parent_media_id"],
       createdAt: DateTime.parse(json["created_at"]),
       updatedAt: DateTime.parse(json["updated_at"]),
-      price: json["price"],
+      price: json["price"] ?? 0,
       likesCount: json["likes_count"],
       playsCount: json["plays_count"],
       type: json["type"],
       originalSource: json["original_source"] ?? "",
-      imageUrl: json["image_url"],
+      imageUrl: json["image_url"] ?? "",
       stories: json["stories"] == null
           ? []
           : List<Story>.from(json["stories"].map((x) => x)),
@@ -169,8 +169,8 @@ class Data {
         "seasonCount": seasonCount,
         "episode_count": episodeCount,
         "category": List<dynamic>.from(category.map((x) => x.toJson())),
-        "content": List<dynamic>.from(content.map((x) => x)),
-        "artists": List<dynamic>.from(artists.map((x) => x)),
+        "content": List<dynamic>.from(content.map((x) => x.toJson())),
+        "artists": List<dynamic>.from(artists.map((x) => x.toJson())),
       };
 }
 

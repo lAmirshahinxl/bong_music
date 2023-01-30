@@ -1,13 +1,13 @@
 class EnglishLanguage {
   static Map get data => {
-        "appName": "bong music",
+        "appName": "BONG MUSIC",
         "home": "Home",
         "explore": "Explore",
         "search": "Search",
         "profile": "Profile",
         "stories": "Stories",
         "seeAll": "See All",
-        "playList": "PlayList",
+        "playList": "Play List",
         "recentlyPlayList": "Recently Played",
         "hotTracks": "Hot Tracks",
         "share": "Share",
@@ -53,5 +53,6 @@ class EnglishLanguage {
         "myPlaylist": "My Playlist",
         "areForgetPassword": "Forgot your password?",
         "recovery": "Recovery",
+        "download": "Download",
       };
 }

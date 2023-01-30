@@ -124,3 +124,9 @@ Future<String?> getAppPath() async {
   }
   return directory?.path;
 }
+
+// extension StringExtension on String {
+//   String capitalize() {
+//     return "${this[0].toUpperCase()}${substring(1).toLowerCase()}";
+//   }
+// }

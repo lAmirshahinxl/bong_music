@@ -133,6 +133,53 @@ class ExplorePage extends StatelessWidget {
               ));
   }
 
+  Widget artistListUi(
+      ExploreLogic logic, MediaChild mediaChild, BuildContext context) {
+    if (mediaChild.artists.isEmpty) {
+      return Text(
+        "",
+        overflow: TextOverflow.ellipsis,
+        style: Theme.of(context)
+            .textTheme
+            .bodyLarge!
+            .copyWith(color: Get.isDarkMode ? Colors.grey : Colors.black),
+      );
+    }
+    if (mediaChild.artists.length == 1) {
+      return Text(
+        mediaChild.artists[0].name.toString(),
+        overflow: TextOverflow.ellipsis,
+        style: Theme.of(context)
+            .textTheme
+            .bodyLarge!
+            .copyWith(color: Get.isDarkMode ? Colors.grey : Colors.black),
+      );
+    }
+    return SizedBox(
+      height: 20,
+      child: ListView.builder(
+        itemCount: 2,
+        physics: const NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        scrollDirection: Axis.horizontal,
+        itemBuilder: (context, index) {
+          return FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              index + 1 == 2
+                  ? " ${mediaChild.artists[index].name}"
+                  : "${mediaChild.artists[index].name} &".toString(),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall!
+                  .copyWith(color: Get.isDarkMode ? Colors.grey : Colors.black),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   Widget itemMediaChild(BuildContext context, MediaChild mediaChild,
       ExploreLogic logic, int index) {
     if (mediaChild.originalSource.isEmpty) {
@@ -147,53 +194,80 @@ class ExplorePage extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 10),
         child: AnimationConfiguration.staggeredList(
           position: index,
-          child: SlideAnimation(
-            horizontalOffset: 500,
-            verticalOffset: 0,
-            delay: const Duration(milliseconds: 100),
-            duration: const Duration(milliseconds: 500),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: CachedNetworkImage(
-                      imageUrl: '$imageBaseUrl/${mediaChild.imageUrl}',
-                      width: Get.width * 0.35,
-                      height: Get.width * 0.35,
-                      fit: BoxFit.fill,
-                      progressIndicatorBuilder: (context, url, progress) {
-                        return Shimmer.fromColors(
-                          baseColor: const Color.fromARGB(255, 60, 60, 60),
-                          highlightColor: Colors.white.withOpacity(0.02),
-                          child: Container(
-                            width: Get.width * 0.35,
-                            height: Get.width * 0.35,
-                            color: Colors.black,
-                          ),
-                        );
-                      },
+          child: FadeInAnimation(
+            duration: const Duration(milliseconds: 300),
+            child: SizedBox(
+              width: Get.width * 0.35,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: CachedNetworkImage(
+                        imageUrl: '$imageBaseUrl/${mediaChild.imageUrl}',
+                        width: Get.width * 0.35,
+                        height: Get.width * 0.35,
+                        fit: BoxFit.fill,
+                        progressIndicatorBuilder: (context, url, progress) {
+                          return Shimmer.fromColors(
+                            baseColor: const Color.fromARGB(255, 60, 60, 60),
+                            highlightColor: Colors.white.withOpacity(0.02),
+                            child: Container(
+                              width: Get.width * 0.35,
+                              height: Get.width * 0.35,
+                              color: Colors.black,
+                            ),
+                          );
+                        },
+                        errorWidget: (context, url, error) {
+                          return Shimmer.fromColors(
+                            baseColor: const Color.fromARGB(255, 60, 60, 60),
+                            highlightColor: Colors.white.withOpacity(0.02),
+                            child: Container(
+                              width: Get.width * 0.35,
+                              height: Get.width * 0.35,
+                              color: Colors.black,
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    children: [
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Text(
-                        mediaChild.title.en.toString(),
-                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                            color:
-                                Get.isDarkMode ? Colors.white : Colors.black),
-                      ),
-                    ],
-                  )
-                ],
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      children: [
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Text(
+                          mediaChild.title.en.toString(),
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyLarge!
+                              .copyWith(
+                                  color: Get.isDarkMode
+                                      ? Colors.white
+                                      : Colors.black),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 2,
+                    ),
+                    Row(
+                      children: [
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Expanded(
+                            child: artistListUi(logic, mediaChild, context)),
+                      ],
+                    )
+                  ],
+                ),
               ),
             ),
           ),
@@ -275,11 +349,8 @@ class ExplorePage extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: AnimationConfiguration.staggeredList(
         position: index,
-        child: SlideAnimation(
-          horizontalOffset: 500,
-          verticalOffset: 0,
-          delay: const Duration(milliseconds: 100),
-          duration: const Duration(milliseconds: 500),
+        child: FadeInAnimation(
+          duration: const Duration(milliseconds: 300),
           child: OpenContainer(
             tappable: false,
             closedColor: Colors.transparent,
@@ -295,53 +366,57 @@ class ExplorePage extends StatelessWidget {
                   action.call();
                 },
                 borderRadius: BorderRadius.circular(10),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: CachedNetworkImage(
-                          imageUrl:
-                              '$imageBaseUrl/${currenPlayList.children[index].imageUrl}',
-                          width: Get.width * 0.35,
-                          height: Get.width * 0.35,
-                          fit: BoxFit.fill,
-                          progressIndicatorBuilder: (context, url, progress) {
-                            return Shimmer.fromColors(
-                              baseColor: const Color.fromARGB(255, 60, 60, 60),
-                              highlightColor: Colors.white.withOpacity(0.02),
-                              child: Container(
-                                width: Get.width * 0.35,
-                                height: Get.width * 0.35,
-                                color: Colors.black,
-                              ),
-                            );
-                          },
+                child: SizedBox(
+                  width: Get.width * 0.35,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: CachedNetworkImage(
+                            imageUrl:
+                                '$imageBaseUrl/${currenPlayList.children[index].imageUrl}',
+                            width: Get.width * 0.35,
+                            height: Get.width * 0.35,
+                            fit: BoxFit.fill,
+                            progressIndicatorBuilder: (context, url, progress) {
+                              return Shimmer.fromColors(
+                                baseColor:
+                                    const Color.fromARGB(255, 60, 60, 60),
+                                highlightColor: Colors.white.withOpacity(0.02),
+                                child: Container(
+                                  width: Get.width * 0.35,
+                                  height: Get.width * 0.35,
+                                  color: Colors.black,
+                                ),
+                              );
+                            },
+                          ),
                         ),
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Row(
-                        children: [
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Text(
-                            currenPlayList.children[index].title,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyLarge!
-                                .copyWith(
-                                    color: Get.isDarkMode
-                                        ? Colors.white
-                                        : Colors.black),
-                          ),
-                        ],
-                      )
-                    ],
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Row(
+                          children: [
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            Text(
+                              currenPlayList.children[index].title,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge!
+                                  .copyWith(
+                                      color: Get.isDarkMode
+                                          ? Colors.white
+                                          : Colors.black),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
                   ),
                 ),
               );
@@ -435,11 +510,8 @@ class ExplorePage extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: AnimationConfiguration.staggeredList(
               position: index,
-              child: SlideAnimation(
-                horizontalOffset: 500,
-                verticalOffset: 0,
-                delay: const Duration(milliseconds: 100),
-                duration: const Duration(milliseconds: 500),
+              child: FadeInAnimation(
+                duration: const Duration(milliseconds: 300),
                 child: Column(
                   children: [
                     ClipRRect(
@@ -626,11 +698,8 @@ class ExplorePage extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: AnimationConfiguration.staggeredList(
         position: index,
-        child: SlideAnimation(
-          horizontalOffset: 500,
-          verticalOffset: 0,
-          delay: const Duration(milliseconds: 100),
-          duration: const Duration(milliseconds: 500),
+        child: FadeInAnimation(
+          duration: const Duration(milliseconds: 300),
           child: GestureDetector(
             onTap: () {},
             child: SizedBox(
@@ -749,11 +818,8 @@ class ExplorePage extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: AnimationConfiguration.staggeredList(
         position: index,
-        child: SlideAnimation(
-          horizontalOffset: 500,
-          verticalOffset: 0,
-          delay: const Duration(milliseconds: 100),
-          duration: const Duration(milliseconds: 500),
+        child: FadeInAnimation(
+          duration: const Duration(milliseconds: 300),
           child: OpenContainer(
             tappable: true,
             closedColor: Colors.transparent,
@@ -762,7 +828,7 @@ class ExplorePage extends StatelessWidget {
             transitionDuration: const Duration(milliseconds: 600),
             closedBuilder: (BuildContext context, void Function() action) =>
                 SizedBox(
-              width: Get.width * 0.7,
+              width: Get.width * 0.35,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(10),
                 child: Column(
@@ -789,10 +855,13 @@ class ExplorePage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(
-                      height: 10,
+                      height: 8,
                     ),
                     Row(
                       children: [
+                        const SizedBox(
+                          width: 10,
+                        ),
                         Text(
                           mediaChild.title.en.toString(),
                           style: Theme.of(context)
@@ -805,18 +874,23 @@ class ExplorePage extends StatelessWidget {
                         ),
                       ],
                     ),
-                    Text(
-                      mediaChild.description.en.toString(),
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.caption,
+                    const SizedBox(
+                      height: 3,
                     ),
+                    Row(
+                      children: [
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        artistListUi(logic, mediaChild, context),
+                      ],
+                    )
                   ],
                 ),
               ),
             ),
             openBuilder: (BuildContext context,
                 void Function({Object? returnValue}) action) {
-              print(mediaChild.categoryId);
               return VideoUiPage(mediaChild);
             },
           ),

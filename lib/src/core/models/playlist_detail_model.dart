@@ -1,5 +1,8 @@
 import 'dart:convert';
 
+import 'package:bong/src/core/models/home_requests_model.dart';
+import 'package:get/get.dart';
+
 PlayListDetailModel playListDetailModelFromJson(String str) =>
     PlayListDetailModel.fromJson(json.decode(str));
 
@@ -62,13 +65,13 @@ class Data {
   String visibility;
   int followers;
   int isAlbum;
-  DateTime createdAt;
-  DateTime updatedAt;
+  DateTime? createdAt;
+  DateTime? updatedAt;
   String status;
   int likesCount;
   int viewsCount;
   bool isLiked;
-  List<Media> media;
+  List<MediaChild> media;
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
         id: json["id"],
@@ -81,13 +84,18 @@ class Data {
         visibility: json["visibility"],
         followers: json["followers"],
         isAlbum: json["isAlbum"],
-        createdAt: DateTime.parse(json["created_at"]),
-        updatedAt: DateTime.parse(json["updated_at"]),
+        createdAt: json["created_at"] == null
+            ? null
+            : DateTime.parse(json["created_at"]),
+        updatedAt: json["updated_at"] == null
+            ? null
+            : DateTime.parse(json["updated_at"]),
         status: json["status"],
         likesCount: json["likes_count"] ?? 0,
         viewsCount: json["views_count"] ?? 0,
         isLiked: json["isLiked"],
-        media: List<Media>.from(json["media"].map((x) => Media.fromJson(x))),
+        media: List<MediaChild>.from(
+            json["media"].map((x) => MediaChild.fromJson(x))),
       );
 
   Map<String, dynamic> toJson() => {
@@ -101,8 +109,8 @@ class Data {
         "visibility": visibility,
         "followers": followers,
         "isAlbum": isAlbum,
-        "created_at": createdAt.toIso8601String(),
-        "updated_at": updatedAt.toIso8601String(),
+        "created_at": createdAt?.toIso8601String(),
+        "updated_at": updatedAt?.toIso8601String(),
         "status": status,
         "likes_count": likesCount,
         "views_count": viewsCount,
@@ -141,6 +149,7 @@ class Media {
     required this.pivot,
     required this.category,
     required this.content,
+    required this.imageUrl,
   });
 
   int id;
@@ -151,6 +160,7 @@ class Media {
   int viewsCount;
   int sharesCount;
   String length;
+  String imageUrl;
   dynamic language;
   DateTime releaseDate;
   dynamic maturityRating;
@@ -158,8 +168,8 @@ class Media {
   int categoryId;
   dynamic userId;
   dynamic parentMediaId;
-  DateTime createdAt;
-  DateTime updatedAt;
+  DateTime? createdAt;
+  DateTime? updatedAt;
   int price;
   int likesCount;
   String type;
@@ -168,7 +178,7 @@ class Media {
   bool isFavourite;
   int seasonCount;
   int episodeCount;
-  MediaPivot pivot;
+  MediaPivot? pivot;
   List<dynamic> category;
   List<dynamic> content;
 
@@ -180,25 +190,31 @@ class Media {
         meta: List<dynamic>.from(json["meta"].map((x) => x)),
         viewsCount: json["views_count"],
         sharesCount: json["shares_count"],
-        length: json["length"],
+        length: json["length"] ?? "0",
+        imageUrl: json["image_url"] ?? "",
         language: json["language"],
         releaseDate: DateTime.parse(json["release_date"]),
         maturityRating: json["maturity_rating"],
-        status: json["status"],
+        status: json["status"] ?? "",
         categoryId: json["category_id"] ?? 0,
         userId: json["user_id"],
         parentMediaId: json["parent_media_id"],
-        createdAt: DateTime.parse(json["created_at"]),
-        updatedAt: DateTime.parse(json["updated_at"]),
-        price: json["price"],
-        likesCount: json["likes_count"],
+        createdAt: json["created_at"] == null
+            ? null
+            : DateTime.parse(json["created_at"]),
+        updatedAt: json["updated_at"] == null
+            ? null
+            : DateTime.parse(json["updated_at"]),
+        price: json["price"] ?? 0,
+        likesCount: json["likes_count"] ?? 0,
         type: json["type"],
-        originalSource: json["original_source"],
-        favoritesCount: json["favoritesCount"],
-        isFavourite: json["isFavourite"],
-        seasonCount: json["seasonCount"],
-        episodeCount: json["episode_count"],
-        pivot: MediaPivot.fromJson(json["pivot"]),
+        originalSource: json["original_source"] ?? "",
+        favoritesCount: json["favoritesCount"] ?? 0,
+        isFavourite: json["isFavourite"] ?? false,
+        seasonCount: json["seasonCount"] ?? 0,
+        episodeCount: json["episode_count"] ?? 0,
+        pivot:
+            json["pivot"] == null ? null : MediaPivot.fromJson(json["pivot"]),
         category: List<dynamic>.from(json["category"].map((x) => x)),
         content: List<dynamic>.from(json["content"].map((x) => x)),
       );
@@ -212,6 +228,7 @@ class Media {
         "views_count": viewsCount,
         "shares_count": sharesCount,
         "length": length,
+        "imageUrl": imageUrl,
         "language": language,
         "release_date":
             "${releaseDate.year.toString().padLeft(4, '0')}-${releaseDate.month.toString().padLeft(2, '0')}-${releaseDate.day.toString().padLeft(2, '0')}",
@@ -220,8 +237,8 @@ class Media {
         "category_id": categoryId,
         "user_id": userId,
         "parent_media_id": parentMediaId,
-        "created_at": createdAt.toIso8601String(),
-        "updated_at": updatedAt.toIso8601String(),
+        "created_at": createdAt?.toIso8601String(),
+        "updated_at": updatedAt?.toIso8601String(),
         "price": price,
         "likes_count": likesCount,
         "type": type,
@@ -230,7 +247,7 @@ class Media {
         "isFavourite": isFavourite,
         "seasonCount": seasonCount,
         "episode_count": episodeCount,
-        "pivot": pivot.toJson(),
+        "pivot": pivot?.toJson(),
         "category": List<dynamic>.from(category.map((x) => x)),
         "content": List<dynamic>.from(content.map((x) => x)),
       };
@@ -243,9 +260,17 @@ class Description {
 
   String en;
 
-  factory Description.fromJson(Map<String, dynamic> json) => Description(
-        en: json["en"],
+  factory Description.fromJson(Map<String, dynamic>? json) {
+    if (json == null) {
+      return Description(
+        en: "",
       );
+    } else {
+      return Description(
+        en: json["en"].toString().capitalize!,
+      );
+    }
+  }
 
   Map<String, dynamic> toJson() => {
         "en": en,

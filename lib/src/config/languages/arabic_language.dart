@@ -54,6 +54,7 @@ class ArabicLanguage {
         "viewInfo": "عرض المعلومات",
         "myPlaylist": "بلدي قائمة التشغيل",
         "areForgetPassword": "نسيت رقمك السري؟",
-        "recovery": "الاسترداد"
+        "recovery": "الاسترداد",
+        "download": "تحميل"
       };
 }

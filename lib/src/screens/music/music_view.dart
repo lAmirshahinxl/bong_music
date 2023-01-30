@@ -6,13 +6,16 @@ import 'package:animations/animations.dart';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:bong/src/config/color_constants.dart';
 import 'package:bong/src/config/string_constants.dart';
+import 'package:bong/src/core/models/detail_media_model.dart';
 import 'package:bong/src/screens/index/index_logic.dart';
+import 'package:bong/src/screens/lyrics/lyrics_view.dart';
 import 'package:bong/src/screens/music/music_logic.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:shimmer/shimmer.dart';
@@ -63,8 +66,10 @@ class _MusicPageState extends State<MusicPage> {
                   BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
                     child: Container(
-                      decoration:
-                          BoxDecoration(color: Colors.black.withOpacity(0.2)),
+                      decoration: BoxDecoration(
+                          color: Get.isDarkMode
+                              ? Colors.black.withOpacity(0.2)
+                              : Colors.white.withOpacity(0.3)),
                     ),
                   ),
                   Positioned(
@@ -158,24 +163,7 @@ class _MusicPageState extends State<MusicPage> {
                                                       const SizedBox(
                                                         height: 6,
                                                       ),
-                                                      Text(
-                                                        logic
-                                                            .indexLogic
-                                                            .selectedMusic
-                                                            .value!
-                                                            .shortDescription
-                                                            .en
-                                                            .toString(),
-                                                        style: Theme.of(context)
-                                                            .textTheme
-                                                            .bodyLarge!
-                                                            .copyWith(
-                                                                color: Get.isDarkMode
-                                                                    ? Colors
-                                                                        .white
-                                                                    : Colors
-                                                                        .black),
-                                                      )
+                                                      artistListUi()
                                                     ],
                                                   ),
                                                   Obx(
@@ -183,19 +171,20 @@ class _MusicPageState extends State<MusicPage> {
                                                         onPressed: () {
                                                           logic.addToFavorite();
                                                         },
-                                                        icon: Icon(
-                                                            logic
-                                                                    .indexLogic
-                                                                    .selectedMusic
-                                                                    .value!
-                                                                    .isFavourite
-                                                                ? Icons
-                                                                    .star_rate_rounded
-                                                                : Icons
-                                                                    .star_border_rounded,
-                                                            size: 25,
-                                                            color:
-                                                                Colors.white)),
+                                                        icon: SvgPicture.asset(
+                                                          !logic
+                                                                  .indexLogic
+                                                                  .selectedMusic
+                                                                  .value!
+                                                                  .isFavourite
+                                                              ? 'assets/icons/heart_fill_icon.svg'
+                                                              : 'assets/icons/heart_icon.svg',
+                                                          width: 25,
+                                                          height: 25,
+                                                          color: Get.isDarkMode
+                                                              ? Colors.white
+                                                              : Colors.black,
+                                                        )),
                                                   )
                                                 ],
                                               ),
@@ -358,6 +347,27 @@ class _MusicPageState extends State<MusicPage> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
+                                StreamBuilder(
+                                    stream: logic.indexLogic.audioPlayer
+                                        .shuffleModeEnabledStream,
+                                    builder: (context,
+                                        AsyncSnapshot<bool> snapshot) {
+                                      if (snapshot.data == null) {
+                                        return const SizedBox();
+                                      }
+                                      return IconButton(
+                                        onPressed: logic.changeSuffle,
+                                        icon: Icon(
+                                          snapshot.data!
+                                              ? Icons.shuffle_on_rounded
+                                              : Icons.shuffle_rounded,
+                                          size: 25,
+                                          color: !snapshot.data!
+                                              ? Colors.white
+                                              : ColorConstants.gold,
+                                        ),
+                                      );
+                                    }),
                                 IconButton(
                                     onPressed: () {
                                       Get.bottomSheet(
@@ -370,6 +380,29 @@ class _MusicPageState extends State<MusicPage> {
                                       size: 35,
                                       color: Colors.white,
                                     )),
+                                OpenContainer(
+                                  tappable: false,
+                                  closedColor: Colors.transparent,
+                                  middleColor: Colors.transparent,
+                                  openColor: Colors.transparent,
+                                  closedElevation: 0,
+                                  openElevation: 0,
+                                  transitionDuration:
+                                      const Duration(milliseconds: 600),
+                                  closedBuilder: (context, action) =>
+                                      IconButton(
+                                          onPressed: () {
+                                            action.call();
+                                          },
+                                          icon: const Icon(
+                                            Icons.text_fields_rounded,
+                                            size: 28,
+                                            color: Colors.white,
+                                          )),
+                                  openBuilder: (context, action) {
+                                    return const LyricsPage();
+                                  },
+                                ),
                               ],
                             ),
                             Obx(
@@ -393,7 +426,7 @@ class _MusicPageState extends State<MusicPage> {
   Widget storiesContainer(context, MusicLogic logic) {
     return AnimatedSwitcherFlip.flipX(
         duration: const Duration(milliseconds: 500),
-        child: logic.storiesList.isEmpty
+        child: logic.indexLogic.storiesList.isEmpty
             ? const SizedBox(
                 width: 1,
               )
@@ -434,7 +467,7 @@ class _MusicPageState extends State<MusicPage> {
                     child: ListView.builder(
                       physics: const BouncingScrollPhysics(),
                       scrollDirection: Axis.horizontal,
-                      itemCount: logic.storiesList.length,
+                      itemCount: logic.indexLogic.storiesList.length,
                       itemBuilder: (context, index) {
                         return itemStories(context, index);
                       },
@@ -470,7 +503,8 @@ class _MusicPageState extends State<MusicPage> {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(1000),
                       child: CachedNetworkImage(
-                        imageUrl: "$imageBaseUrl/${logic.storiesList[index]}",
+                        imageUrl:
+                            "$imageBaseUrl/${logic.indexLogic.storiesList[index]}",
                         width: 70,
                         height: 70,
                         fit: BoxFit.fill,
@@ -491,7 +525,7 @@ class _MusicPageState extends State<MusicPage> {
                       height: 10,
                     ),
                     Text(
-                      logic.storiesList[index].id.toString(),
+                      logic.indexLogic.storiesList[index].id.toString(),
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                           color: Get.isDarkMode ? Colors.white : Colors.black),
                     )
@@ -511,7 +545,7 @@ class _MusicPageState extends State<MusicPage> {
   Widget upNextContainer(context, MusicLogic logic) {
     return AnimatedSwitcherFlip.flipX(
         duration: const Duration(milliseconds: 500),
-        child: logic.upnextList.isEmpty
+        child: logic.indexLogic.upnextList.isEmpty
             ? const SizedBox(
                 width: 1,
               )
@@ -548,7 +582,7 @@ class _MusicPageState extends State<MusicPage> {
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
                     scrollDirection: Axis.vertical,
-                    itemCount: logic.upnextList.length,
+                    itemCount: logic.indexLogic.upnextList.length,
                     itemBuilder: (context, index) {
                       return itemChildPlayList(context, index);
                     },
@@ -573,52 +607,70 @@ class _MusicPageState extends State<MusicPage> {
               width: Get.width,
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: CachedNetworkImage(
-                      imageUrl:
-                          '$imageBaseUrl/${logic.upnextList[index].imageUrl}',
-                      width: Get.width * 0.15,
-                      height: Get.width * 0.15,
-                      fit: BoxFit.fill,
-                      progressIndicatorBuilder: (context, url, progress) {
-                        return Shimmer.fromColors(
-                          baseColor: const Color.fromARGB(255, 60, 60, 60),
-                          highlightColor: Colors.white.withOpacity(0.02),
-                          child: Container(
-                            width: Get.width * 0.35,
-                            height: Get.width * 0.35,
-                            color: Colors.black,
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  Row(
                     children: [
-                      Text(
-                        logic.upnextList[index].title.en.toString(),
-                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                            color:
-                                Get.isDarkMode ? Colors.white : Colors.black),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: CachedNetworkImage(
+                          imageUrl:
+                              '$imageBaseUrl/${logic.indexLogic.upnextList[index].imageUrl}',
+                          width: Get.width * 0.15,
+                          height: Get.width * 0.15,
+                          fit: BoxFit.fill,
+                          progressIndicatorBuilder: (context, url, progress) {
+                            return Shimmer.fromColors(
+                              baseColor: const Color.fromARGB(255, 60, 60, 60),
+                              highlightColor: Colors.white.withOpacity(0.02),
+                              child: Container(
+                                width: Get.width * 0.35,
+                                height: Get.width * 0.35,
+                                color: Colors.black,
+                              ),
+                            );
+                          },
+                        ),
                       ),
                       const SizedBox(
-                        height: 6,
+                        width: 10,
                       ),
-                      Text(
-                        logic.upnextList[index].description.en.toString(),
-                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                            color:
-                                Get.isDarkMode ? Colors.white : Colors.black),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            logic.indexLogic.upnextList[index].title.en
+                                .toString(),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyLarge!
+                                .copyWith(
+                                    color: Get.isDarkMode
+                                        ? Colors.white
+                                        : Colors.black),
+                          ),
+                          const SizedBox(
+                            height: 6,
+                          ),
+                          artistListUi()
+                        ],
                       )
                     ],
-                  )
+                  ),
+                  IconButton(
+                      onPressed: () {
+                        Get.bottomSheet(
+                          menuBottomSheet(logic.indexLogic.upnextList[index]),
+                          isScrollControlled: true,
+                        );
+                      },
+                      icon: Icon(
+                        Icons.menu,
+                        size: 30,
+                        color: Get.isDarkMode ? Colors.white : Colors.black,
+                      ))
                 ],
               ),
             ),
@@ -628,138 +680,400 @@ class _MusicPageState extends State<MusicPage> {
     );
   }
 
-  Widget menuBottomSheet() {
-    return Container(
-      decoration: BoxDecoration(
+  Widget menuBottomSheet([Data? upnextItem]) {
+    if (upnextItem == null) {
+      return Container(
+        decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          color: ColorConstants.backgroundColor),
-      child: SingleChildScrollView(
-        child: Column(children: [
-          const SizedBox(
-            height: 15,
-          ),
-          Container(
-            width: 100,
-            height: 4,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(100), color: Colors.grey),
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-          Row(
+        ),
+        child: SingleChildScrollView(
+          child: Stack(
             children: [
-              IconButton(
-                  onPressed: () {},
-                  icon: const Icon(
-                    Icons.share,
-                    color: Colors.white,
-                    size: 20,
-                  )),
-              Obx(
-                () => Text(
-                  logic.splashLogic.currentLanguage['share'],
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyLarge!
-                      .copyWith(color: Colors.white),
+              BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                      color: Get.isDarkMode
+                          ? Colors.black.withOpacity(0.2)
+                          : Colors.white.withOpacity(0.3)),
                 ),
-              )
+              ),
+              Column(children: [
+                const SizedBox(
+                  height: 15,
+                ),
+                Container(
+                  width: 100,
+                  height: 4,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(100),
+                      color: Colors.grey),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: CachedNetworkImage(
+                          imageUrl:
+                              '$imageBaseUrl/${logic.indexLogic.selectedMusic.value!.imageUrl}',
+                          fit: BoxFit.fill,
+                          width: Get.width * 0.15,
+                          height: Get.width * 0.15,
+                          progressIndicatorBuilder: (context, url, progress) {
+                            return Shimmer.fromColors(
+                              baseColor: const Color.fromARGB(255, 60, 60, 60),
+                              highlightColor: Colors.white.withOpacity(0.02),
+                              child: Container(
+                                width: Get.width * 0.7,
+                                height: Get.width * 0.35,
+                                color: Colors.black,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            logic.indexLogic.selectedMusic.value!.title.en
+                                .toString(),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyLarge!
+                                .copyWith(color: Colors.white),
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          artistListUi()
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                Row(
+                  children: [
+                    IconButton(
+                        onPressed: () {},
+                        icon: const Icon(
+                          Icons.share,
+                          color: Colors.white,
+                          size: 20,
+                        )),
+                    Obx(
+                      () => Text(
+                        logic.splashLogic.currentLanguage['share'],
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyLarge!
+                            .copyWith(color: Colors.white),
+                      ),
+                    )
+                  ],
+                ),
+                Divider(
+                  color: Colors.grey.withOpacity(0.2),
+                ),
+                InkWell(
+                  onTap: () {
+                    Get.back();
+                    logic.addToFavorite();
+                  },
+                  child: Row(
+                    children: [
+                      IconButton(
+                          onPressed: () {},
+                          icon: SvgPicture.asset(
+                            'assets/icons/heart_icon.svg',
+                            width: 20,
+                            height: 20,
+                            color: Get.isDarkMode ? Colors.white : Colors.black,
+                          )),
+                      Obx(
+                        () => Text(
+                          logic.splashLogic.currentLanguage['addToFavorite'],
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyLarge!
+                              .copyWith(color: Colors.white),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                Divider(
+                  color: Colors.grey.withOpacity(0.2),
+                ),
+                InkWell(
+                  onTap: () {
+                    Get.back();
+                    Get.bottomSheet(selectArtistBottomSheet(),
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent);
+                  },
+                  child: Row(
+                    children: [
+                      IconButton(
+                          onPressed: () {},
+                          icon: const Icon(
+                            Icons.upgrade_sharp,
+                            color: Colors.white,
+                            size: 20,
+                          )),
+                      Obx(
+                        () => Text(
+                          logic.splashLogic.currentLanguage['goToArtist'],
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyLarge!
+                              .copyWith(color: Colors.white),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                Divider(
+                  color: Colors.grey.withOpacity(0.2),
+                ),
+                InkWell(
+                  onTap: logic.goToViewInfo,
+                  child: Row(
+                    children: [
+                      IconButton(
+                          onPressed: () {},
+                          icon: const Icon(
+                            Icons.info_outline_rounded,
+                            color: Colors.white,
+                            size: 20,
+                          )),
+                      Obx(
+                        () => Text(
+                          logic.splashLogic.currentLanguage['viewInfo'],
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyLarge!
+                              .copyWith(color: Colors.white),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                const SizedBox(
+                  height: 40,
+                )
+              ]),
             ],
           ),
-          Divider(
-            color: Colors.grey.withOpacity(0.2),
-          ),
-          InkWell(
-            onTap: () {
-              Get.back();
-              logic.addToFavorite();
-            },
-            child: Row(
-              children: [
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(
-                    Icons.star_border_rounded,
-                    color: Colors.white,
-                    size: 20,
+        ),
+      );
+    } else {
+      return Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: SingleChildScrollView(
+          child: Stack(
+            children: [
+              BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                      color: Get.isDarkMode
+                          ? Colors.black.withOpacity(0.2)
+                          : Colors.white.withOpacity(0.3)),
+                ),
+              ),
+              Column(children: [
+                const SizedBox(
+                  height: 15,
+                ),
+                Container(
+                  width: 100,
+                  height: 4,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(100),
+                      color: Colors.grey),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: CachedNetworkImage(
+                          imageUrl: '$imageBaseUrl/${upnextItem.imageUrl}',
+                          fit: BoxFit.fill,
+                          width: Get.width * 0.15,
+                          height: Get.width * 0.15,
+                          progressIndicatorBuilder: (context, url, progress) {
+                            return Shimmer.fromColors(
+                              baseColor: const Color.fromARGB(255, 60, 60, 60),
+                              highlightColor: Colors.white.withOpacity(0.02),
+                              child: Container(
+                                width: Get.width * 0.7,
+                                height: Get.width * 0.35,
+                                color: Colors.black,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            upnextItem.title.en.toString(),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyLarge!
+                                .copyWith(color: Colors.white),
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          artistListUi(upnextItem)
+                        ],
+                      )
+                    ],
                   ),
                 ),
-                Obx(
-                  () => Text(
-                    logic.splashLogic.currentLanguage['addToFavorite'],
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyLarge!
-                        .copyWith(color: Colors.white),
+                const SizedBox(
+                  height: 10,
+                ),
+                Row(
+                  children: [
+                    IconButton(
+                        onPressed: () {},
+                        icon: const Icon(
+                          Icons.share,
+                          color: Colors.white,
+                          size: 20,
+                        )),
+                    Obx(
+                      () => Text(
+                        logic.splashLogic.currentLanguage['share'],
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyLarge!
+                            .copyWith(color: Colors.white),
+                      ),
+                    )
+                  ],
+                ),
+                Divider(
+                  color: Colors.grey.withOpacity(0.2),
+                ),
+                InkWell(
+                  onTap: () {
+                    Get.back();
+                    logic.addToFavoriteUpnext(upnextItem);
+                  },
+                  child: Row(
+                    children: [
+                      IconButton(
+                          onPressed: () {},
+                          icon: SvgPicture.asset(
+                            'assets/icons/heart_icon.svg',
+                            width: 20,
+                            height: 20,
+                            color: Get.isDarkMode ? Colors.white : Colors.black,
+                          )),
+                      Obx(
+                        () => Text(
+                          logic.splashLogic.currentLanguage['addToFavorite'],
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyLarge!
+                              .copyWith(color: Colors.white),
+                        ),
+                      )
+                    ],
                   ),
-                )
-              ],
-            ),
-          ),
-          Divider(
-            color: Colors.grey.withOpacity(0.2),
-          ),
-          InkWell(
-            onTap: () {
-              Get.back();
-              Get.bottomSheet(selectArtistBottomSheet(),
-                  isScrollControlled: true,
-                  backgroundColor: Colors.transparent);
-            },
-            child: Row(
-              children: [
-                IconButton(
-                    onPressed: () {},
-                    icon: const Icon(
-                      Icons.upgrade_sharp,
-                      color: Colors.white,
-                      size: 20,
-                    )),
-                Obx(
-                  () => Text(
-                    logic.splashLogic.currentLanguage['goToArtist'],
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyLarge!
-                        .copyWith(color: Colors.white),
+                ),
+                Divider(
+                  color: Colors.grey.withOpacity(0.2),
+                ),
+                InkWell(
+                  onTap: () {
+                    Get.back();
+                    Get.bottomSheet(selectArtistUpnextBottomSheet(upnextItem),
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent);
+                  },
+                  child: Row(
+                    children: [
+                      IconButton(
+                          onPressed: () {},
+                          icon: const Icon(
+                            Icons.upgrade_sharp,
+                            color: Colors.white,
+                            size: 20,
+                          )),
+                      Obx(
+                        () => Text(
+                          logic.splashLogic.currentLanguage['goToArtist'],
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyLarge!
+                              .copyWith(color: Colors.white),
+                        ),
+                      )
+                    ],
                   ),
-                )
-              ],
-            ),
-          ),
-          Divider(
-            color: Colors.grey.withOpacity(0.2),
-          ),
-          InkWell(
-            onTap: logic.goToViewInfo,
-            child: Row(
-              children: [
-                IconButton(
-                    onPressed: () {},
-                    icon: const Icon(
-                      Icons.info_outline_rounded,
-                      color: Colors.white,
-                      size: 20,
-                    )),
-                Obx(
-                  () => Text(
-                    logic.splashLogic.currentLanguage['viewInfo'],
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyLarge!
-                        .copyWith(color: Colors.white),
+                ),
+                Divider(
+                  color: Colors.grey.withOpacity(0.2),
+                ),
+                InkWell(
+                  onTap: () => logic.goToViewInfoUpnext(upnextItem),
+                  child: Row(
+                    children: [
+                      IconButton(
+                          onPressed: () {},
+                          icon: const Icon(
+                            Icons.info_outline_rounded,
+                            color: Colors.white,
+                            size: 20,
+                          )),
+                      Obx(
+                        () => Text(
+                          logic.splashLogic.currentLanguage['viewInfo'],
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyLarge!
+                              .copyWith(color: Colors.white),
+                        ),
+                      )
+                    ],
                   ),
+                ),
+                const SizedBox(
+                  height: 40,
                 )
-              ],
-            ),
+              ]),
+            ],
           ),
-          const SizedBox(
-            height: 40,
-          )
-        ]),
-      ),
-    );
+        ),
+      );
+    }
   }
 
   Widget selectArtistBottomSheet() {
@@ -787,7 +1101,8 @@ class _MusicPageState extends State<MusicPage> {
               height: 10,
             ),
             ListView.builder(
-              itemCount: logic.detailMediaModel.value!.data.artists.length,
+              itemCount:
+                  logic.indexLogic.detailMediaModel.value!.data.artists.length,
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemBuilder: (context, index) {
@@ -795,27 +1110,32 @@ class _MusicPageState extends State<MusicPage> {
                   child: InkWell(
                     onTap: () {
                       Get.back();
-                      Get.to(() => ArtistDetailPage(
-                          logic.detailMediaModel.value!.data.artists[index]));
+                      Get.to(() => ArtistDetailPage(logic.indexLogic
+                          .detailMediaModel.value!.data.artists[index]));
                     },
                     child: Column(
                       children: [
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            Padding(
-                              padding: const EdgeInsets.all(10),
-                              child: Text(
-                                logic.detailMediaModel.value!.data
-                                    .artists[index].name,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyLarge!
-                                    .copyWith(
-                                        color: Get.isDarkMode
-                                            ? Colors.white
-                                            : Colors.black),
-                              ),
+                            IconButton(
+                                onPressed: () {},
+                                icon: Icon(
+                                  Icons.data_usage_rounded,
+                                  color: Get.isDarkMode
+                                      ? Colors.white
+                                      : Colors.black,
+                                )),
+                            Text(
+                              logic.indexLogic.detailMediaModel.value!.data
+                                  .artists[index].name,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge!
+                                  .copyWith(
+                                      color: Get.isDarkMode
+                                          ? Colors.white
+                                          : Colors.black),
                             )
                           ],
                         ),
@@ -831,6 +1151,173 @@ class _MusicPageState extends State<MusicPage> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget selectArtistUpnextBottomSheet(Data upnextItem) {
+    print(upnextItem.artists.length);
+    return SingleChildScrollView(
+      child: Container(
+        constraints: const BoxConstraints(
+          minHeight: 200,
+        ),
+        decoration: BoxDecoration(
+            color: ColorConstants.backgroundColor,
+            borderRadius: const BorderRadius.only(
+                topRight: Radius.circular(10), topLeft: Radius.circular(10))),
+        child: Column(
+          children: [
+            const SizedBox(
+              height: 10,
+            ),
+            Container(
+              width: 100,
+              height: 4,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(100), color: Colors.grey),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            ListView.builder(
+              itemCount: upnextItem.artists.length,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemBuilder: (context, index) {
+                return Material(
+                  child: InkWell(
+                    onTap: () {
+                      Get.back();
+                      Get.to(() => ArtistDetailPage(upnextItem.artists[index]));
+                    },
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            IconButton(
+                                onPressed: () {},
+                                icon: Icon(
+                                  Icons.data_usage_rounded,
+                                  color: Get.isDarkMode
+                                      ? Colors.white
+                                      : Colors.black,
+                                )),
+                            Text(
+                              upnextItem.artists[index].name,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge!
+                                  .copyWith(
+                                      color: Get.isDarkMode
+                                          ? Colors.white
+                                          : Colors.black),
+                            )
+                          ],
+                        ),
+                        Divider(
+                          color: Colors.grey.withOpacity(0.2),
+                        )
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget artistListUi([Data? upnextItem]) {
+    if (upnextItem != null) {
+      if (upnextItem.artists.isEmpty) {
+        return const SizedBox();
+      }
+      if (upnextItem.artists.length == 1) {
+        return InkWell(
+          onTap: () {
+            Get.bottomSheet(selectArtistBottomSheet());
+          },
+          child: Text(
+            upnextItem.artists[0].name.toString(),
+            style: Theme.of(context)
+                .textTheme
+                .bodySmall!
+                .copyWith(color: Get.isDarkMode ? Colors.grey : Colors.black),
+          ),
+        );
+      }
+      return InkWell(
+        onTap: () {
+          Get.bottomSheet(selectArtistBottomSheet());
+        },
+        child: SizedBox(
+          height: 20,
+          child: ListView.builder(
+            itemCount: 2,
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            scrollDirection: Axis.horizontal,
+            itemBuilder: (context, index) {
+              return Text(
+                index + 1 == 2
+                    ? " ${upnextItem.artists[index].name}"
+                    : "${upnextItem.artists[index].name} &".toString(),
+                style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                    color: Get.isDarkMode ? Colors.grey : Colors.black),
+              );
+            },
+          ),
+        ),
+      );
+    }
+    return Obx(
+      () {
+        if (logic.indexLogic.detailMediaModel.value == null) {
+          return const SizedBox();
+        }
+        if (logic.indexLogic.detailMediaModel.value!.data.artists.length == 1) {
+          return InkWell(
+            onTap: () {
+              Get.bottomSheet(selectArtistBottomSheet());
+            },
+            child: Text(
+              logic.indexLogic.detailMediaModel.value!.data.artists[0].name
+                  .toString(),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall!
+                  .copyWith(color: Get.isDarkMode ? Colors.grey : Colors.black),
+            ),
+          );
+        }
+        return InkWell(
+          onTap: () {
+            Get.bottomSheet(selectArtistBottomSheet());
+          },
+          child: SizedBox(
+            height: 20,
+            child: ListView.builder(
+              itemCount: 2,
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              scrollDirection: Axis.horizontal,
+              itemBuilder: (context, index) {
+                return Text(
+                  index + 1 == 2
+                      ? " ${logic.indexLogic.detailMediaModel.value!.data.artists[index].name}"
+                      : "${logic.indexLogic.detailMediaModel.value!.data.artists[index].name} &"
+                          .toString(),
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                      color: Get.isDarkMode ? Colors.grey : Colors.black),
+                );
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 }

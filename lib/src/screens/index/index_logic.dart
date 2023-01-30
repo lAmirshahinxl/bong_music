@@ -5,15 +5,21 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:bong/src/core/models/detail_media_model.dart'
+    as mediaDetailModel;
+import 'package:bong/src/core/models/artist_detail_model.dart'
+    as artistDetailModel;
 
 class IndexLogic extends GetxController {
   final splashLogic = Get.find<SplashLogic>();
 
   var pageController = PageController(initialPage: 0);
   Rx<int> selectedIndex = 0.obs;
-  Rx<String> headerText = 'bong music'.obs;
+  Rx<String> headerText = 'BONG MUSIC'.obs;
   final audioPlayer = AudioPlayer();
   Rxn<MediaChild> selectedMusic = Rxn();
+  RxList<mediaDetailModel.Data> upnextList = RxList();
+  int upnextIndex = 0;
   Rx<bool> isPlaying = false.obs;
   Rx<Duration> currentDuration = const Duration(seconds: 0).obs;
   Rx<Duration> totalDuration = const Duration(seconds: 0).obs;
@@ -22,6 +28,9 @@ class IndexLogic extends GetxController {
   RxList<MediaChild> offlineMusicUrlList = RxList();
   List<LoopMode> loopModeList = [LoopMode.off, LoopMode.all, LoopMode.one];
   Rx<int> selectedLoopModeIndex = 0.obs;
+  RxList<artistDetailModel.Story> storiesList = RxList();
+  Rxn<mediaDetailModel.DetailMediaModel> detailMediaModel = Rxn();
+  Rx<bool> shuffle = false.obs;
 
   @override
   void onInit() {
@@ -32,6 +41,10 @@ class IndexLogic extends GetxController {
     ever(
       selectedMusic,
       (callback) => addToRecentlyViewed(callback),
+    );
+    ever(
+      shuffle,
+      (callback) => shuffleChange(callback),
     );
     getRecentlyPlayed();
     getOfflineMusics();
@@ -160,5 +173,9 @@ class IndexLogic extends GetxController {
           isScrollControlled: true,
           isDismissible: false);
     }
+  }
+
+  void shuffleChange(bool callback) {
+    audioPlayer.setShuffleModeEnabled(callback);
   }
 }

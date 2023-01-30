@@ -1,5 +1,8 @@
+import 'package:bong/src/core/models/home_requests_model.dart';
+import 'package:get/get.dart';
+
 class CatgeoryChildsModel {
-  List<Data>? data;
+  List<PlaylistChild>? data;
   int? code;
   String? message;
 
@@ -7,9 +10,9 @@ class CatgeoryChildsModel {
 
   CatgeoryChildsModel.fromJson(Map<String, dynamic> json) {
     if (json['data'] != null) {
-      data = <Data>[];
+      data = <PlaylistChild>[];
       json['data'].forEach((v) {
-        data!.add(Data.fromJson(v));
+        data!.add(PlaylistChild.fromJson(v));
       });
     }
     code = json['code'];
@@ -23,86 +26,6 @@ class CatgeoryChildsModel {
     }
     data['code'] = code;
     data['message'] = message;
-    return data;
-  }
-}
-
-class Data {
-  int? id;
-  int? userId;
-  int? categoryId;
-  String? title;
-  String? description;
-  String? imageUrl;
-  String? creator;
-  String? visibility;
-  int? followers;
-  int? isAlbum;
-  DateTime? createdAt;
-  DateTime? updatedAt;
-  String? status;
-  List<Media>? media;
-  bool? isLiked;
-
-  Data(
-      {this.id,
-      this.userId,
-      this.categoryId,
-      this.title,
-      this.description,
-      this.imageUrl,
-      this.creator,
-      this.visibility,
-      this.followers,
-      this.isAlbum,
-      this.createdAt,
-      this.updatedAt,
-      this.status,
-      this.media,
-      this.isLiked});
-
-  Data.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    userId = json['user_id'];
-    categoryId = json['category_id'];
-    title = json['title'];
-    description = json['description'];
-    imageUrl = json['image_url'];
-    creator = json['creator'];
-    visibility = json['visibility'];
-    followers = json['followers'];
-    isAlbum = json['isAlbum'];
-    createdAt = json['created_at'];
-    updatedAt = json['updated_at'];
-    status = json['status'];
-    if (json['media'] != null) {
-      media = <Media>[];
-      json['media'].forEach((v) {
-        media!.add(Media.fromJson(v));
-      });
-    }
-    isLiked = json['isLiked'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['id'] = id;
-    data['user_id'] = userId;
-    data['category_id'] = categoryId;
-    data['title'] = title;
-    data['description'] = description;
-    data['image_url'] = imageUrl;
-    data['creator'] = creator;
-    data['visibility'] = visibility;
-    data['followers'] = followers;
-    data['isAlbum'] = isAlbum;
-    data['created_at'] = createdAt;
-    data['updated_at'] = updatedAt;
-    data['status'] = status;
-    if (media != null) {
-      data['media'] = media!.map((v) => v.toJson()).toList();
-    }
-    data['isLiked'] = isLiked;
     return data;
   }
 }
@@ -239,7 +162,7 @@ class Title {
   Title({this.en});
 
   Title.fromJson(Map<String, dynamic> json) {
-    en = json['en'];
+    en = json['en'].toString().capitalize!;
   }
 
   Map<String, dynamic> toJson() {

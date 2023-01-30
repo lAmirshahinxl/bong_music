@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:get/get.dart';
+
 GetUpcomingEventsModel getUpcomingEventsModelFromJson(String str) =>
     GetUpcomingEventsModel.fromJson(json.decode(str));
 
@@ -63,8 +65,8 @@ class EventModel {
 
   factory EventModel.fromJson(Map<String, dynamic> json) => EventModel(
         id: json["id"],
-        title: json["title"] ?? "",
-        description: json["description"] ?? "",
+        title: json["title"].toString().capitalize ?? "",
+        description: json["description"].toString().capitalize ?? "",
         location: json["location"] ?? "",
         purchaseLink: json["purchase_link"],
         eventDate: DateTime.parse(json["event_date"]),

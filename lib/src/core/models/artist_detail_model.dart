@@ -1,5 +1,10 @@
 import 'dart:convert';
 
+import 'package:bong/src/core/models/home_requests_model.dart';
+import 'package:get/get.dart';
+
+import 'get_upcoming_events_model.dart';
+
 ArtistDetailModel artistDetailModelFromJson(String str) =>
     ArtistDetailModel.fromJson(json.decode(str));
 
@@ -51,7 +56,10 @@ class Data {
     required this.viewsCount,
     required this.likesCount,
     required this.stories,
-    required this.media,
+    required this.musics,
+    required this.musicVideos,
+    required this.podcasts,
+    required this.playLists,
     required this.upcomingEvent,
   });
 
@@ -73,12 +81,15 @@ class Data {
   int viewsCount;
   int likesCount;
   List<Story> stories;
-  List<Media> media;
-  List<UpcomingEvent> upcomingEvent;
+  List<Media> musics;
+  List<Media> musicVideos;
+  List<Media> podcasts;
+  List<PlaylistChild> playLists;
+  List<EventModel> upcomingEvent;
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
         id: json["id"],
-        name: json["name"],
+        name: json["name"].toString().capitalize!,
         email: json["email"],
         username: json["username"],
         mobileNumber: json["mobile_number"],
@@ -96,9 +107,15 @@ class Data {
         likesCount: json["likes_count"],
         stories:
             List<Story>.from(json["stories"].map((x) => Story.fromJson(x))),
-        media: List<Media>.from(json["media"].map((x) => Media.fromJson(x))),
-        upcomingEvent: List<UpcomingEvent>.from(
-            json["upcoming-event"].map((x) => UpcomingEvent.fromJson(x))),
+        musics: List<Media>.from(json["musics"].map((x) => Media.fromJson(x))),
+        musicVideos: List<Media>.from(
+            json["music-videos"].map((x) => Media.fromJson(x))),
+        podcasts:
+            List<Media>.from(json["podcasts"].map((x) => Media.fromJson(x))),
+        playLists: List<PlaylistChild>.from(
+            json["playlists"].map((x) => PlaylistChild.fromJson(x))),
+        upcomingEvent: List<EventModel>.from(
+            json["upcoming-event"].map((x) => EventModel.fromJson(x))),
       );
 
   Map<String, dynamic> toJson() => {
@@ -120,7 +137,10 @@ class Data {
         "views_count": viewsCount,
         "likes_count": likesCount,
         "stories": List<dynamic>.from(stories.map((x) => x.toJson())),
-        "media": List<dynamic>.from(media.map((x) => x.toJson())),
+        "musics": List<dynamic>.from(musics.map((x) => x.toJson())),
+        "music-videos": List<dynamic>.from(musicVideos.map((x) => x.toJson())),
+        "podcasts": List<dynamic>.from(podcasts.map((x) => x.toJson())),
+        "playlists": List<dynamic>.from(playLists.map((x) => x.toJson())),
         "upcoming-event":
             List<dynamic>.from(upcomingEvent.map((x) => x.toJson())),
       };
@@ -132,7 +152,6 @@ class Media {
     required this.title,
     required this.description,
     required this.shortDescription,
-    required this.meta,
     required this.viewsCount,
     required this.sharesCount,
     required this.length,
@@ -147,6 +166,7 @@ class Media {
     required this.updatedAt,
     required this.price,
     required this.likesCount,
+    required this.playsCount,
     required this.type,
     required this.originalSource,
     required this.imageUrl,
@@ -159,13 +179,14 @@ class Media {
     required this.category,
     required this.content,
     required this.pivot,
+    required this.artists,
+    required this.upcomingEvents,
   });
 
   int id;
   Description title;
   Description description;
   Description shortDescription;
-  List<dynamic> meta;
   int viewsCount;
   int sharesCount;
   String length;
@@ -180,6 +201,7 @@ class Media {
   DateTime updatedAt;
   int price;
   int likesCount;
+  int playsCount;
   String type;
   String originalSource;
   String imageUrl;
@@ -191,17 +213,18 @@ class Media {
   int episodeCount;
   List<dynamic> category;
   List<dynamic> content;
-  MediaPivot pivot;
+  List<Artist> artists;
+  List<EventModel> upcomingEvents;
+  MediaPivot? pivot;
 
   factory Media.fromJson(Map<String, dynamic> json) => Media(
         id: json["id"],
         title: Description.fromJson(json["title"]),
         description: Description.fromJson(json["description"]),
         shortDescription: Description.fromJson(json["short_description"]),
-        meta: List<dynamic>.from(json["meta"].map((x) => x)),
         viewsCount: json["views_count"],
         sharesCount: json["shares_count"],
-        length: json["length"],
+        length: json["length"] ?? "",
         language: json["language"],
         releaseDate: DateTime.parse(json["release_date"]),
         maturityRating: json["maturity_rating"],
@@ -211,11 +234,12 @@ class Media {
         parentMediaId: json["parent_media_id"],
         createdAt: DateTime.parse(json["created_at"]),
         updatedAt: DateTime.parse(json["updated_at"]),
-        price: json["price"],
-        likesCount: json["likes_count"],
+        price: json["price"] ?? 0,
+        likesCount: json["likes_count"] ?? 0,
+        playsCount: json["plays_count"] ?? 0,
         type: json["type"],
-        originalSource: json["original_source"],
-        imageUrl: json["image_url"],
+        originalSource: json["original_source"] ?? "",
+        imageUrl: json["image_url"] ?? "",
         lyrics: json["lyrics"],
         lyricsSplit: json["lyrics_split"],
         favoritesCount: json["favoritesCount"],
@@ -224,7 +248,15 @@ class Media {
         episodeCount: json["episode_count"],
         category: List<dynamic>.from(json["category"].map((x) => x)),
         content: List<dynamic>.from(json["content"].map((x) => x)),
-        pivot: MediaPivot.fromJson(json["pivot"]),
+        artists: json["artists"] == null
+            ? []
+            : List<Artist>.from(json["artists"].map((x) => Artist.fromJson(x))),
+        upcomingEvents: json["upcoming-event"] == null
+            ? []
+            : List<EventModel>.from(
+                json["upcoming-event"].map((x) => EventModel.fromJson(x))),
+        pivot:
+            json["pivot"] == null ? null : MediaPivot.fromJson(json["pivot"]),
       );
 
   Map<String, dynamic> toJson() => {
@@ -232,7 +264,6 @@ class Media {
         "title": title.toJson(),
         "description": description.toJson(),
         "short_description": shortDescription.toJson(),
-        "meta": List<dynamic>.from(meta.map((x) => x)),
         "views_count": viewsCount,
         "shares_count": sharesCount,
         "length": length,
@@ -248,6 +279,7 @@ class Media {
         "updated_at": updatedAt.toIso8601String(),
         "price": price,
         "likes_count": likesCount,
+        "plays_count": playsCount,
         "type": type,
         "original_source": originalSource,
         "image_url": imageUrl,
@@ -259,7 +291,10 @@ class Media {
         "episode_count": episodeCount,
         "category": List<dynamic>.from(category.map((x) => x)),
         "content": List<dynamic>.from(content.map((x) => x)),
-        "pivot": pivot.toJson(),
+        "artists": List<dynamic>.from(artists.map((x) => x.toJson())),
+        "upcoming-event":
+            List<dynamic>.from(upcomingEvents.map((x) => x.toJson())),
+        "pivot": pivot?.toJson(),
       };
 }
 
@@ -277,7 +312,7 @@ class Description {
       );
     } else {
       return Description(
-        en: json["en"],
+        en: json["en"].toString().capitalize!,
       );
     }
   }

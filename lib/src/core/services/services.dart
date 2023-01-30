@@ -113,11 +113,27 @@ class RemoteService {
       var body = {"id": idd, "type": type};
       var response = await dio.post('/app/favorite/toggle',
           data: body, options: Options(headers: header));
-      print(response.data);
-      print('==========');
       return [ToggleFavoriteModel.fromJson(response.data), null];
     } on DioError catch (e) {
       print(e.toString());
+      return [null, "Error Data"];
+    }
+  }
+
+  Future<List> incrasePlay(int idd) async {
+    try {
+      var header = {"Authorization": "Bearer ${GetStorage().read("token")}"};
+      var body = {"media_id": idd};
+
+      var response = await dio.post('/app/media/play/increase',
+          data: body, options: Options(headers: header));
+
+      if (response.statusCode == 200) {
+        return [true, null];
+      } else {
+        return [null, "Error Auth"];
+      }
+    } on DioError catch (e) {
       return [null, "Error Data"];
     }
   }
@@ -127,6 +143,7 @@ class RemoteService {
       var header = GetStorage().hasData("token")
           ? {"Authorization": "Bearer ${GetStorage().read("token")}"}
           : null;
+      print("/app/media?sort=$searchType&category_id=$categoryId");
       var response =
           await dio.get('/app/media?sort=$searchType&category_id=$categoryId');
       return [SeeAllMediaModel.fromJson(response.data), null];
@@ -145,14 +162,15 @@ class RemoteService {
     }
   }
 
-  Future<bool> register(
-      String email, String password, String mobile, String name) async {
+  Future<bool> register(String email, String password, String mobile,
+      String name, String birthday) async {
     try {
       var body = {
         "name": name,
         "email": email,
         "mobile_number": mobile,
         "password": password,
+        "birthday": birthday,
         "language": "en"
       };
       print(body);
@@ -161,6 +179,7 @@ class RemoteService {
           data: body, options: Options(headers: header));
       return true;
     } on DioError catch (e) {
+      print(e.toString());
       return false;
     }
   }
@@ -201,7 +220,6 @@ class RemoteService {
           : null;
       var response = await dio.get('/app/media/$mediaId',
           options: Options(headers: header));
-      print(response.data);
       return [DetailMediaModel.fromJson(response.data), null];
     } on DioError catch (e) {
       return [null, "Error Data"];

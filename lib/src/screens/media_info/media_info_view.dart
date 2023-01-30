@@ -101,14 +101,14 @@ class _MediaInfoPageState extends State<MediaInfoPage> {
           const SizedBox(
             height: 10,
           ),
-          Obx(
-            () => Text(
-              "Date Added : ${logic.musicLogic.detailMediaModel.value!.data.createdAt.toString()}",
-              style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                  fontFamily: '',
-                  color: Get.isDarkMode ? Colors.white : Colors.black),
-            ),
-          ),
+          // Obx(
+          //   () => Text(
+          //     "Date Added : ${logic.musicLogic.detailMediaModel.value!.data.createdAt.toString()}",
+          //     style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+          //         fontFamily: '',
+          //         color: Get.isDarkMode ? Colors.white : Colors.black),
+          //   ),
+          // ),
           const SizedBox(
             height: 10,
           ),
@@ -144,7 +144,7 @@ class _MediaInfoPageState extends State<MediaInfoPage> {
               ),
             ),
           ),
-          const BottomPlayerWidget()
+          // const BottomPlayerWidget()
         ],
       ),
     );

@@ -55,5 +55,6 @@ class TurkeyLanguage {
         "myPlaylist": "çalma listem",
         "areForgetPassword": "Parolanızı mı unuttunuz?",
         "recovery": "Kurtarma",
+        "download": "indirmek",
       };
 }

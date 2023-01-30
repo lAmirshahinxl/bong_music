@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:get/get.dart';
+
 GetCategoriesModel getCategoriesModelFromJson(String str) =>
     GetCategoriesModel.fromJson(json.decode(str));
 
@@ -80,7 +82,7 @@ class Title {
   String en;
 
   factory Title.fromJson(Map<String, dynamic> json) => Title(
-        en: json["en"],
+        en: json["en"].toString().capitalize!,
       );
 
   Map<String, dynamic> toJson() => {

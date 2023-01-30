@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:get/get.dart';
+
 GetSearchModel getSearchModelFromJson(String str) =>
     GetSearchModel.fromJson(json.decode(str));
 
@@ -40,7 +42,7 @@ class Search {
 
   factory Search.fromJson(Map<String, dynamic> json) => Search(
         id: json["id"],
-        title: json["title"],
+        title: json["title"].toString().capitalize!,
       );
 
   Map<String, dynamic> toJson() => {

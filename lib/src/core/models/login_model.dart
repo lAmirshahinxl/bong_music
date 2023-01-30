@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:get/get.dart';
+
 LoginModel loginModelFromJson(String str) =>
     LoginModel.fromJson(json.decode(str));
 
@@ -66,7 +68,7 @@ class User {
 
   factory User.fromJson(Map<String, dynamic> json) => User(
         id: json["id"],
-        name: json["name"],
+        name: json["name"].toString().capitalize!,
         email: json["email"],
         username: json["username"],
         mobileNumber: json["mobile_number"],

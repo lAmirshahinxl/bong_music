@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:get/get.dart';
+
 import 'artist_detail_model.dart';
 
 HomeRequestModel homeRequestModelFromJson(String str) =>
@@ -39,7 +41,9 @@ class Data {
     required this.media,
     required this.playlists,
     required this.artists,
+    required this.albums,
     required this.forYou,
+    required this.videos,
   });
 
   List<Story> stories;
@@ -47,6 +51,8 @@ class Data {
   List<Playlist> playlists;
   List<Artist> artists;
   List<MediaChild> forYou;
+  List<MediaChild> videos;
+  List<PlaylistChild> albums;
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
         stories: json["stories"] == null
@@ -62,10 +68,18 @@ class Data {
         artists: json["artists"] == null
             ? []
             : List<Artist>.from(json["artists"].map((x) => Artist.fromJson(x))),
+        albums: json["albums"] == null
+            ? []
+            : List<PlaylistChild>.from(
+                json["albums"].map((x) => PlaylistChild.fromJson(x))),
         forYou: json["foryou"] == null
             ? []
             : List<MediaChild>.from(
                 json["foryou"].map((x) => MediaChild.fromJson(x))),
+        videos: json["videos"] == null
+            ? []
+            : List<MediaChild>.from(
+                json["videos"].map((x) => MediaChild.fromJson(x))),
       );
 
   Map<String, dynamic> toJson() => {
@@ -73,6 +87,8 @@ class Data {
         "media": List<dynamic>.from(media.map((x) => x.toJson())),
         "playlists": List<dynamic>.from(playlists.map((x) => x.toJson())),
         "artists": List<dynamic>.from(artists.map((x) => x.toJson())),
+        "albums": List<dynamic>.from(albums.map((x) => x.toJson())),
+        "videos": List<dynamic>.from(videos.map((x) => x.toJson())),
       };
 }
 
@@ -117,7 +133,7 @@ class Artist {
 
   factory Artist.fromJson(Map<String, dynamic> json) => Artist(
         id: json["id"],
-        name: json["name"],
+        name: json["name"].toString().capitalize!,
         email: json["email"],
         username: json["username"],
         mobileNumber: json["mobile_number"],
@@ -238,13 +254,15 @@ class MediaChild {
       required this.type,
       required this.originalSource,
       required this.imageUrl,
+      required this.lyrics,
       required this.favoritesCount,
       required this.isFavourite,
       required this.seasonCount,
       required this.episodeCount,
       required this.pivot,
       required this.category,
-      required this.content});
+      required this.content,
+      required this.artists});
 
   int id;
   Title title;
@@ -268,6 +286,7 @@ class MediaChild {
   String? type;
   String originalSource;
   String imageUrl;
+  String lyrics;
   int favoritesCount;
   bool isFavourite;
   int seasonCount;
@@ -275,6 +294,7 @@ class MediaChild {
   Pivot? pivot;
   List<dynamic> category;
   List<dynamic> content;
+  List<Artist> artists;
 
   factory MediaChild.fromJson(Map<String, dynamic> json) {
     return MediaChild(
@@ -303,13 +323,18 @@ class MediaChild {
         type: json["type"],
         originalSource: json["original_source"] ?? '',
         imageUrl: json["image_url"] ?? '',
+        lyrics: json["lyrics"] ?? '',
         favoritesCount: json["favoritesCount"],
         isFavourite: json["isFavourite"],
         seasonCount: json["seasonCount"],
         episodeCount: json["episode_count"],
         pivot: json["pivot"] == null ? null : Pivot.fromJson(json["pivot"]),
         category: List<dynamic>.from(json["category"].map((x) => x)),
-        content: List<dynamic>.from(json["content"].map((x) => x)));
+        content: List<dynamic>.from(json["content"].map((x) => x)),
+        artists: json["artists"] == null
+            ? []
+            : List<Artist>.from(
+                json["artists"].map((x) => Artist.fromJson(x))));
   }
 
   Map<String, dynamic> toJson() => {
@@ -335,6 +360,7 @@ class MediaChild {
         "type": type,
         "original_source": originalSource.toString(),
         "image_url": imageUrl.toString(),
+        "lyrics": lyrics.toString(),
         "favoritesCount": favoritesCount,
         "isFavourite": isFavourite,
         "seasonCount": seasonCount,
@@ -342,6 +368,7 @@ class MediaChild {
         "pivot": pivot?.toJson(),
         "category": List<dynamic>.from(category.map((x) => x)),
         "content": List<dynamic>.from(content.map((x) => x)),
+        "artists": List<dynamic>.from(artists.map((x) => x.toJson())),
       };
 }
 
@@ -359,7 +386,7 @@ class Title {
       );
     } else {
       return Title(
-        en: json["en"],
+        en: json["en"].toString().capitalize!,
       );
     }
   }
@@ -494,7 +521,7 @@ class PlaylistChild {
     required this.description,
     required this.imageUrl,
     required this.creator,
-    required this.visibility,
+    // required this.visibility,
     required this.followers,
     required this.isAlbum,
     required this.createdAt,
@@ -512,11 +539,11 @@ class PlaylistChild {
   String description;
   String imageUrl;
   String creator;
-  String visibility;
+  // String visibility;
   int followers;
   int isAlbum;
-  DateTime createdAt;
-  DateTime updatedAt;
+  DateTime? createdAt;
+  DateTime? updatedAt;
   String status;
   int likesCount;
   int viewsCount;
@@ -526,15 +553,19 @@ class PlaylistChild {
         id: json["id"],
         userId: json["user_id"],
         categoryId: json["category_id"],
-        title: json["title"],
-        description: json["description"],
+        title: json["title"].toString().capitalize!,
+        description: json["description"].toString().capitalize!,
         imageUrl: json["image_url"],
-        creator: json["creator"],
-        visibility: json["visibility"],
+        creator: json["creator"].toString().capitalize!,
+        // visibility: json["visibility"],
         followers: json["followers"],
-        isAlbum: json["isAlbum"],
-        createdAt: DateTime.parse(json["created_at"]),
-        updatedAt: DateTime.parse(json["updated_at"]),
+        isAlbum: json["isAlbum"] ?? 0,
+        createdAt: json["created_at"] == null
+            ? null
+            : DateTime.parse(json["created_at"]),
+        updatedAt: json["updated_at"] == null
+            ? null
+            : DateTime.parse(json["updated_at"]),
         status: json["status"],
         likesCount: json["likes_count"] ?? 0,
         viewsCount: json["views_count"] ?? 0,
@@ -549,11 +580,11 @@ class PlaylistChild {
         "description": description,
         "image_url": imageUrl,
         "creator": creator,
-        "visibility": visibility,
+        // "visibility": visibility,
         "followers": followers,
         "isAlbum": isAlbum,
-        "created_at": createdAt.toIso8601String(),
-        "updated_at": updatedAt.toIso8601String(),
+        "created_at": createdAt?.toIso8601String(),
+        "updated_at": updatedAt?.toIso8601String(),
         "status": status,
         "likes_count": likesCount,
         "views_count": viewsCount,
@@ -600,7 +631,7 @@ class User {
 
   factory User.fromJson(Map<String, dynamic> json) => User(
         id: json["id"],
-        name: json["name"],
+        name: json["name"].toString().capitalize!,
         email: json["email"],
         username: json["username"],
         mobileNumber: json["mobile_number"],

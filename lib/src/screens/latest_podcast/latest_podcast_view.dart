@@ -98,13 +98,25 @@ class _LatestPodcastPageState extends State<LatestPodcastPage> {
                               size: 25,
                             ),
                           )
-                        : ListView.builder(
-                            itemCount: logic.mediaList.length,
-                            physics: const BouncingScrollPhysics(),
-                            itemBuilder: (context, index) {
-                              return itemMusic(index);
-                            },
-                          ),
+                        : logic.mediaList.isEmpty
+                            ? Center(
+                                child: Text(
+                                "Not Found Any Item",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge!
+                                    .copyWith(
+                                        color: Get.isDarkMode
+                                            ? Colors.white
+                                            : Colors.black),
+                              ))
+                            : ListView.builder(
+                                itemCount: logic.mediaList.length,
+                                physics: const BouncingScrollPhysics(),
+                                itemBuilder: (context, index) {
+                                  return itemMusic(index);
+                                },
+                              ),
                   ),
                 );
               },

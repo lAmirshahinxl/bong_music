@@ -37,7 +37,6 @@ class MusicVideosLogic extends GetxController {
   }
 
   void clickedOnItemUpnext(MediaChild mediaChild) {
-    print('mediaChild.originalSource : ' + mediaChild.originalSource);
     if (!mediaChild.originalSource.contains('.mp4')) {
       indexLogic.selectedMusic.value = mediaChild;
       Get.to(() => MusicPage());

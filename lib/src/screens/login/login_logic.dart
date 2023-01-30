@@ -17,6 +17,7 @@ class LoginLogic extends GetxController with GetSingleTickerProviderStateMixin {
   TextEditingController rePasswordController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
   TextEditingController nameController = TextEditingController();
+  TextEditingController birthdayController = TextEditingController();
   // late AnimationController animationController;
   @override
   void onInit() {
@@ -89,8 +90,12 @@ class LoginLogic extends GetxController with GetSingleTickerProviderStateMixin {
     }
 
     EasyLoading.show(status: "Please Wait");
-    bool success = await RemoteService().register(emailController.text,
-        passwordController.text, phoneController.text, nameController.text);
+    bool success = await RemoteService().register(
+        emailController.text,
+        passwordController.text,
+        phoneController.text,
+        nameController.text,
+        birthdayController.text);
     EasyLoading.dismiss();
     if (success) {
       EasyLoading.showToast("Register Success, Please Login");

@@ -1,45 +1,20 @@
 import 'package:bong/src/config/string_constants.dart';
-import 'package:bong/src/core/models/artist_detail_model.dart';
 import 'package:bong/src/core/models/home_requests_model.dart';
-import 'package:bong/src/core/services/services.dart';
-import 'package:bong/src/screens/index/index_logic.dart';
-import 'package:bong/src/screens/splash/splash_logic.dart';
+import 'package:bong/src/screens/media_info_main/media_info_main_view.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:bong/src/core/models/artist_detail_model.dart' as artistdetail;
+import 'package:get_storage/get_storage.dart';
 
-import '../../core/models/get_upcoming_events_model.dart';
-import '../media_info_main/media_info_main_view.dart';
+import '../../core/services/services.dart';
+import '../index/index_logic.dart';
+import '../splash/splash_logic.dart';
 
-class ArtistDetailLogic extends GetxController {
-  late Artist currentArtist;
-  Rxn<ArtistDetailModel> artistDetailModel = Rxn();
+class SeeAllArtistMusicLogic extends GetxController {
+  final List<artistdetail.Media> musicList = Get.arguments['musicList'] ?? [];
   final splashLogic = Get.find<SplashLogic>();
   final indexLogic = Get.find<IndexLogic>();
-  Rxn<EventModel> selectedEvent = Rxn();
-  RxList<PlaylistChild> playLists = RxList();
-  RxList<PlaylistChild> albums = RxList();
-
-  @override
-  void onReady() {
-    super.onReady();
-    callArtisDetailApi();
-  }
-
-  void callArtisDetailApi() async {
-    var res = await RemoteService().getArtistDetail(currentArtist.id);
-    if (res[0] == null) {
-      EasyLoading.showToast(res[1].toString());
-      return;
-    }
-    artistDetailModel.value = res[0];
-    albums.value = List.from(artistDetailModel.value!.data.playLists
-        .where((element) => element.isAlbum == 0));
-    playLists.value = List.from(artistDetailModel.value!.data.playLists
-        .where((element) => element.isAlbum == 1));
-  }
 
   void goToMusicPage(MediaChild mediaChild) {
     indexLogic.selectedMusic.value = mediaChild;

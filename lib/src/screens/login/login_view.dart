@@ -8,6 +8,7 @@ import 'package:bong/src/widgets/submit_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/container.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
@@ -136,9 +137,8 @@ class LoginPage extends StatelessWidget {
                       controller: logic.rePasswordController,
                       textInputAction: TextInputAction.next,
                       obscureText: true,
-                      decoration: defTextfieldDecoration().copyWith(
-                          hintText:
-                              logic.splashLogic.currentLanguage['rePassword']),
+                      decoration: defTextfieldDecoration()
+                          .copyWith(hintText: "Re.Password"),
                     ),
                   ),
                   const SizedBox(
@@ -169,6 +169,41 @@ class LoginPage extends StatelessWidget {
                       style: const TextStyle(fontFamily: ''),
                       decoration: defTextfieldDecoration().copyWith(
                           hintText: logic.splashLogic.currentLanguage['name']),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    child: TextField(
+                      controller: logic.birthdayController,
+                      readOnly: true,
+                      onTap: () {
+                        DatePicker.showDatePicker(context,
+                            maxTime: DateTime.now(),
+                            minTime: DateTime(1900),
+                            showTitleActions: true, onConfirm: (date) {
+                          String day = "${date.day}";
+                          String month = "${date.month}";
+
+                          if (date.day < 10) {
+                            day = "0${date.day}";
+                          }
+                          if (date.month < 10) {
+                            month = "0${date.month}";
+                          }
+                          logic.birthdayController.text =
+                              "${date.year}/$month/$day";
+                        }, currentTime: DateTime.now(), locale: LocaleType.en);
+                      },
+                      decoration: defTextfieldDecoration().copyWith(
+                        labelText: "Day of Birthday",
+                      ),
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium!
+                          .copyWith(fontFamily: ''),
                     ),
                   ),
                 ],

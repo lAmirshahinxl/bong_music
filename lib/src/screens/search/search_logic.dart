@@ -169,6 +169,10 @@ class SearchLogic extends GetxController {
       return;
     }
     CatgeoryChildsModel catgeoryChildsModel = res[0];
-    // Get.to(()=> PlayListDeatilPage(PlaylistChild.fromJson(catgeoryChildsModel.data!.first.media!)))
+    if (catgeoryChildsModel.data == null || catgeoryChildsModel.data!.isEmpty) {
+      EasyLoading.showToast('Not found any item');
+      return;
+    }
+    Get.to(() => PlayListDeatilPage(catgeoryChildsModel.data!.first));
   }
 }

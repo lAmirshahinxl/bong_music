@@ -1,6 +1,7 @@
 import 'dart:ui';
 
-import 'package:bong/src/screens/playlist_detail/playlist_detail_logic.dart';
+import 'package:bong/src/config/string_constants.dart';
+import 'package:bong/src/screens/see_all_artistmusic/see_all_artistmusic_logic.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -11,271 +12,97 @@ import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../config/color_constants.dart';
-import '../../config/string_constants.dart';
 import '../../core/models/home_requests_model.dart';
-import '../../widgets/bottom_player.dart';
+import 'package:bong/src/core/models/artist_detail_model.dart' as artistdetail;
+
 import '../artist_detail/artist_detail_view.dart';
 
-class PlayListDeatilPage extends StatefulWidget {
-  late PlaylistChild currenPlayList;
-
-  PlayListDeatilPage(this.currenPlayList, {super.key});
+class SeeAllArtistMusicPage extends StatefulWidget {
+  const SeeAllArtistMusicPage({super.key});
 
   @override
-  State<PlayListDeatilPage> createState() => _PlayListDeatilPageState();
+  State<SeeAllArtistMusicPage> createState() => _SeeAllArtistMusicPageState();
 }
 
-class _PlayListDeatilPageState extends State<PlayListDeatilPage> {
-  final logic = Get.put(PlayListDetailLogic());
-
-  @override
-  void initState() {
-    logic.currenPlayList = widget.currenPlayList.obs;
-    super.initState();
-  }
+class _SeeAllArtistMusicPageState extends State<SeeAllArtistMusicPage> {
+  final logic = Get.put(SeeAllArtistMusicLogic());
 
   @override
   void dispose() {
-    Get.delete<PlayListDetailLogic>();
+    Get.delete<SeeAllArtistMusicLogic>();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: Get.width,
-      height: Get.height,
-      color: Get.isDarkMode ? ColorConstants.backgroundColor : Colors.white,
-      child: Column(children: [
-        SizedBox(
-          height: 90,
-          width: Get.width,
-          child: Card(
-            color:
-                Get.isDarkMode ? ColorConstants.cardbackground : Colors.white,
-            elevation: 1,
-            child: Column(
-              children: [
-                const SizedBox(
-                  height: 40,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Visibility(
-                      visible: true,
-                      child: IconButton(
-                        onPressed: () => Get.back(),
-                        icon: Icon(
-                          Icons.arrow_back_ios,
-                          color: Get.isDarkMode ? Colors.white : Colors.black,
+    return Scaffold(
+      body: Column(
+        children: [
+          SizedBox(
+            height: 90,
+            width: Get.width,
+            child: Card(
+              color:
+                  Get.isDarkMode ? ColorConstants.cardbackground : Colors.white,
+              elevation: 1,
+              child: Column(
+                children: [
+                  const SizedBox(
+                    height: 40,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Visibility(
+                        visible: true,
+                        child: IconButton(
+                          onPressed: () => Get.back(),
+                          icon: Icon(
+                            Icons.arrow_back_ios,
+                            color: Get.isDarkMode ? Colors.white : Colors.black,
+                          ),
                         ),
                       ),
-                    ),
-                    Text(
-                      logic.currenPlayList.value.title.toString(),
-                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                          color: Get.isDarkMode ? Colors.white : Colors.black,
-                          fontSize: 20),
-                    ),
-                    IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.arrow_back_ios,
-                          color: Colors.transparent),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-        Expanded(
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Column(
-              children: [
-                const SizedBox(
-                  height: 20,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Row(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: CachedNetworkImage(
-                            width: Get.width * 0.25,
-                            height: Get.width * 0.25,
-                            imageUrl:
-                                '$imageBaseUrl/${logic.currenPlayList.value.imageUrl}',
-                            fit: BoxFit.fill),
+                      Text(
+                        "All Items",
+                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                            color: Get.isDarkMode ? Colors.white : Colors.black,
+                            fontSize: 20),
                       ),
-                      const SizedBox(
-                        width: 10,
+                      IconButton(
+                        onPressed: () {},
+                        icon: const Icon(Icons.arrow_back_ios,
+                            color: Colors.transparent),
                       ),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                logic.currenPlayList.value.title.toString(),
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyLarge!
-                                    .copyWith(
-                                      color: Get.isDarkMode
-                                          ? Colors.white
-                                          : Colors.black,
-                                    ),
-                              ),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              Text(
-                                '${logic.currenPlayList.value.followers} Subscription',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium!
-                                    .copyWith(
-                                        color: Get.isDarkMode
-                                            ? Colors.white
-                                            : Colors.black,
-                                        fontFamily: ''),
-                              ),
-                              const SizedBox(
-                                height: 5,
-                              ),
-                              Text(
-                                'By Bong Music',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium!
-                                    .copyWith(
-                                      color: Get.isDarkMode
-                                          ? Colors.white
-                                          : Colors.black,
-                                    ),
-                              ),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              Material(
-                                child: IconButton(
-                                    onPressed: () => logic.addToFavorite(),
-                                    icon: Obx(
-                                      () => Icon(
-                                        logic.currenPlayList.value.isLiked
-                                            ? Icons.star_rounded
-                                            : Icons.star_outline_rounded,
-                                        size: 25,
-                                        color:
-                                            logic.currenPlayList.value.isLiked
-                                                ? ColorConstants.gold
-                                                : Colors.white,
-                                      ),
-                                    )),
-                              ),
-                              Material(
-                                child: IconButton(
-                                    onPressed: () => logic.downloadPlayList(),
-                                    icon: Icon(
-                                      Icons.download_rounded,
-                                      size: 25,
-                                      color: Get.isDarkMode
-                                          ? Colors.white
-                                          : Colors.black,
-                                    )),
-                              ),
-                            ],
-                          )
-                        ],
-                      )
                     ],
                   ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Row(
-                  children: [
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Text("${logic.currenPlayList.value.title} on Bong Music"),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                  ],
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Obx(
-                    () {
-                      if (logic.detailModel.value == null) {
-                        return Shimmer.fromColors(
-                          baseColor: const Color.fromARGB(255, 60, 60, 60),
-                          highlightColor: Colors.white.withOpacity(0.02),
-                          child: ListView.builder(
-                            itemCount: 3,
-                            physics: const NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            itemBuilder: (context, idx) {
-                              return AnimationConfiguration.staggeredList(
-                                position: idx,
-                                duration: const Duration(seconds: 1),
-                                child: SlideAnimation(
-                                  verticalOffset: 500,
-                                  child: Container(
-                                    height: 100,
-                                    width: Get.width,
-                                    margin:
-                                        const EdgeInsets.symmetric(vertical: 5),
-                                    decoration: BoxDecoration(
-                                      color:
-                                          const Color.fromARGB(255, 60, 60, 60),
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        );
-                      } else {
-                        return ListView.builder(
-                          itemCount: logic.detailModel.value!.data.media.length,
-                          physics: const NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                          itemBuilder: (context, idx) {
-                            return itemChildPlayList(idx);
-                          },
-                        );
-                      }
-                    },
-                  ),
-                )
-              ],
+                ],
+              ),
             ),
           ),
-        ),
-        const BottomPlayerWidget()
-      ]),
+          Expanded(
+            child: ListView.builder(
+              itemCount: logic.musicList.length,
+              physics: const BouncingScrollPhysics(),
+              itemBuilder: (context, index) {
+                return itemMusic(index);
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget itemChildPlayList(int index) {
+  Widget itemMusic(int index) {
     return AnimationConfiguration.staggeredList(
       position: index,
       duration: const Duration(seconds: 1),
       child: FadeInAnimation(
         duration: const Duration(seconds: 1),
         child: GestureDetector(
-          onTap: () => logic.goToMusicPage(MediaChild.fromJson(
-              logic.detailModel.value!.data.media[index].toJson())),
+          onTap: () => logic.goToMusicPage(
+              MediaChild.fromJson(logic.musicList[index].toJson())),
           child: Container(
             width: Get.width,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -284,25 +111,6 @@ class _PlayListDeatilPageState extends State<PlayListDeatilPage> {
               children: [
                 Row(
                   children: [
-                    SizedBox(
-                      width: 20,
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          '${index + 1}',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyLarge!
-                              .copyWith(
-                                  color: Get.isDarkMode
-                                      ? Colors.white
-                                      : Colors.black),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
                     Container(
                       width: Get.width * 0.15,
                       height: Get.width * 0.15,
@@ -310,7 +118,7 @@ class _PlayListDeatilPageState extends State<PlayListDeatilPage> {
                           borderRadius: BorderRadius.circular(10),
                           image: DecorationImage(
                               image: NetworkImage(
-                                  '$imageBaseUrl/${logic.detailModel.value!.data.media[index].imageUrl}'),
+                                  '$imageBaseUrl/${logic.musicList[index].imageUrl}'),
                               fit: BoxFit.fill)),
                     ),
                     const SizedBox(
@@ -321,8 +129,7 @@ class _PlayListDeatilPageState extends State<PlayListDeatilPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          logic.detailModel.value!.data.media[index].title.en
-                              .toString(),
+                          logic.musicList[index].title.en.toString(),
                           style: Theme.of(context)
                               .textTheme
                               .bodyLarge!
@@ -334,18 +141,14 @@ class _PlayListDeatilPageState extends State<PlayListDeatilPage> {
                         const SizedBox(
                           height: 6,
                         ),
-                        artistListUi(logic.detailModel.value!.data.media[index])
+                        artistListUi(logic.musicList[index])
                       ],
                     )
                   ],
                 ),
                 IconButton(
                     onPressed: () {
-                      Get.bottomSheet(
-                        menuBottomSheet(
-                            logic.detailModel.value!.data.media[index]),
-                        isScrollControlled: true,
-                      );
+                      Get.bottomSheet(menuBottomSheet(logic.musicList[index]));
                     },
                     icon: Icon(
                       Icons.menu,
@@ -360,7 +163,7 @@ class _PlayListDeatilPageState extends State<PlayListDeatilPage> {
     );
   }
 
-  Widget menuBottomSheet(MediaChild media) {
+  Widget menuBottomSheet(artistdetail.Media item) {
     return Container(
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
       child: SingleChildScrollView(
@@ -396,7 +199,7 @@ class _PlayListDeatilPageState extends State<PlayListDeatilPage> {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(10),
                       child: CachedNetworkImage(
-                        imageUrl: '$imageBaseUrl/${media.imageUrl}',
+                        imageUrl: '$imageBaseUrl/${item.imageUrl}',
                         fit: BoxFit.fill,
                         width: Get.width * 0.15,
                         height: Get.width * 0.15,
@@ -420,7 +223,7 @@ class _PlayListDeatilPageState extends State<PlayListDeatilPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          media.title.en.toString(),
+                          item.title.en.toString(),
                           style: Theme.of(context)
                               .textTheme
                               .bodyLarge!
@@ -429,7 +232,7 @@ class _PlayListDeatilPageState extends State<PlayListDeatilPage> {
                         const SizedBox(
                           height: 5,
                         ),
-                        artistListUi(media)
+                        artistListUi(item)
                       ],
                     )
                   ],
@@ -494,7 +297,7 @@ class _PlayListDeatilPageState extends State<PlayListDeatilPage> {
               InkWell(
                 onTap: () {
                   Get.back();
-                  Get.bottomSheet(selectArtistBottomSheet(media.artists),
+                  Get.bottomSheet(selectArtistBottomSheet(item),
                       isScrollControlled: true,
                       backgroundColor: Colors.transparent);
                 },
@@ -523,7 +326,7 @@ class _PlayListDeatilPageState extends State<PlayListDeatilPage> {
                 color: Colors.grey.withOpacity(0.2),
               ),
               InkWell(
-                onTap: () => logic.goToViewInfo(media),
+                onTap: () => logic.goToViewInfo(item),
                 child: Row(
                   children: [
                     IconButton(
@@ -551,7 +354,7 @@ class _PlayListDeatilPageState extends State<PlayListDeatilPage> {
               InkWell(
                 onTap: () {
                   Get.back();
-                  logic.downloadMusic(MediaChild.fromJson(media.toJson()));
+                  logic.downloadMusic(MediaChild.fromJson(item.toJson()));
                 },
                 child: Row(
                   children: [
@@ -584,7 +387,7 @@ class _PlayListDeatilPageState extends State<PlayListDeatilPage> {
     );
   }
 
-  Widget selectArtistBottomSheet(List<Artist> artists) {
+  Widget selectArtistBottomSheet(artistdetail.Media item) {
     return SingleChildScrollView(
       child: Container(
         constraints: const BoxConstraints(
@@ -609,7 +412,7 @@ class _PlayListDeatilPageState extends State<PlayListDeatilPage> {
               height: 10,
             ),
             ListView.builder(
-              itemCount: artists.length,
+              itemCount: item.artists.length,
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemBuilder: (context, index) {
@@ -617,7 +420,7 @@ class _PlayListDeatilPageState extends State<PlayListDeatilPage> {
                   child: InkWell(
                     onTap: () {
                       Get.back();
-                      Get.to(() => ArtistDetailPage(artists[index]));
+                      Get.to(() => ArtistDetailPage(item.artists[index]));
                     },
                     child: Column(
                       children: [
@@ -632,18 +435,15 @@ class _PlayListDeatilPageState extends State<PlayListDeatilPage> {
                                       ? Colors.white
                                       : Colors.black,
                                 )),
-                            Padding(
-                              padding: const EdgeInsets.all(10),
-                              child: Text(
-                                artists[index].name,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyLarge!
-                                    .copyWith(
-                                        color: Get.isDarkMode
-                                            ? Colors.white
-                                            : Colors.black),
-                              ),
+                            Text(
+                              item.artists[index].name,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge!
+                                  .copyWith(
+                                      color: Get.isDarkMode
+                                          ? Colors.white
+                                          : Colors.black),
                             )
                           ],
                         ),
@@ -662,15 +462,28 @@ class _PlayListDeatilPageState extends State<PlayListDeatilPage> {
     );
   }
 
-  Widget artistListUi(MediaChild mediaChild) {
-    if (mediaChild.artists.length == 1) {
+  Widget artistListUi(artistdetail.Media mediaChild) {
+    if (mediaChild.artists.isEmpty) {
       return Text(
-        mediaChild.artists[0].name.toString(),
+        "",
         overflow: TextOverflow.ellipsis,
         style: Theme.of(context)
             .textTheme
             .bodyLarge!
             .copyWith(color: Get.isDarkMode ? Colors.grey : Colors.black),
+      );
+    }
+    if (mediaChild.artists.length == 1) {
+      return FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(
+          mediaChild.artists[0].name.toString(),
+          overflow: TextOverflow.ellipsis,
+          style: Theme.of(context)
+              .textTheme
+              .bodyLarge!
+              .copyWith(color: Get.isDarkMode ? Colors.grey : Colors.black),
+        ),
       );
     }
     return SizedBox(

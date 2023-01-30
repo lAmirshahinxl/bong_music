@@ -8,6 +8,7 @@ import 'package:bong/src/screens/artist_detail/artist_detail_view.dart';
 import 'package:bong/src/screens/home/home_logic.dart';
 import 'package:bong/src/screens/playlist_detail/playlist_detail_view.dart';
 import 'package:bong/src/screens/see_all/see_all_view.dart';
+import 'package:bong/src/screens/video/video_logic.dart';
 import 'package:bong/src/screens/video_ui/video_ui_view.dart';
 import 'package:bong/src/widgets/network_aware_widget.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -45,9 +46,6 @@ class HomePage extends StatelessWidget {
             Obx(
               () => storiesContainer(context, logic),
             ),
-            Obx(
-              () => playListContainer(context, logic),
-            ),
             Obx(() => ListView.builder(
                 itemCount: logic.mediaCategory.length,
                 scrollDirection: Axis.vertical,
@@ -58,6 +56,15 @@ class HomePage extends StatelessWidget {
                       position: index,
                       child: mediaListContainer(context, logic, index));
                 })),
+            Obx(
+              () => playListContainer(context, logic),
+            ),
+            Obx(
+              () => albumsContainer(context, logic),
+            ),
+            Obx(
+              () => videoContainer(context, logic),
+            ),
             Obx(
               () => forYouContainer(context, logic),
             ),
@@ -190,6 +197,68 @@ class HomePage extends StatelessWidget {
     );
   }
 
+  Widget videoContainer(BuildContext context, HomeLogic logic) {
+    return AnimatedSwitcherFlip.flipX(
+        duration: const Duration(milliseconds: 1000),
+        child: logic.albumsList.isEmpty
+            ? const SizedBox(
+                width: 1,
+              )
+            : Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          Text(
+                            "Videos",
+                            style: Theme.of(context)
+                                .textTheme
+                                .headline4!
+                                .copyWith(
+                                    color: Get.isDarkMode
+                                        ? Colors.white
+                                        : Colors.black),
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                        ],
+                      ),
+                      // TextButton(
+                      //     onPressed: () =>
+                      //         logic.goToSeeAllPlayList(logic.playList[index]),
+                      //     child: Obx(
+                      //         () => Text(logic.splashLogic.currentLanguage['seeAll']))),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  SizedBox(
+                    height: (Get.width * 0.35) + 50,
+                    child: ListView.builder(
+                      physics: const BouncingScrollPhysics(),
+                      scrollDirection: Axis.horizontal,
+                      itemCount: logic.videosList.length,
+                      itemBuilder: (context, index) {
+                        return itemVideoMusic(
+                          context,
+                          logic.videosList[index],
+                          logic,
+                          index,
+                        );
+                      },
+                    ),
+                  )
+                ],
+              ));
+  }
+
   Widget playListContainer(BuildContext context, HomeLogic logic) {
     return ListView.builder(
       physics: const NeverScrollableScrollPhysics(),
@@ -263,11 +332,8 @@ class HomePage extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: AnimationConfiguration.staggeredList(
         position: index,
-        child: SlideAnimation(
-          horizontalOffset: 500,
-          verticalOffset: 0,
-          delay: const Duration(milliseconds: 100),
-          duration: const Duration(milliseconds: 500),
+        child: FadeInAnimation(
+          duration: const Duration(milliseconds: 300),
           child: OpenContainer(
             tappable: false,
             closedColor: Colors.transparent,
@@ -401,7 +467,7 @@ class HomePage extends StatelessWidget {
                     height: 5,
                   ),
                   SizedBox(
-                    height: (Get.width * 0.35) + 50,
+                    height: (Get.width * 0.35) + 60,
                     child: ListView.builder(
                       physics: const BouncingScrollPhysics(),
                       scrollDirection: Axis.horizontal,
@@ -434,68 +500,141 @@ class HomePage extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 10),
         child: AnimationConfiguration.staggeredList(
           position: index,
-          child: SlideAnimation(
-            horizontalOffset: 500,
-            verticalOffset: 0,
-            delay: const Duration(milliseconds: 100),
-            duration: const Duration(milliseconds: 500),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: CachedNetworkImage(
-                      imageUrl: '$imageBaseUrl/${mediaChild.imageUrl}',
-                      width: Get.width * 0.35,
-                      height: Get.width * 0.35,
-                      fit: BoxFit.fill,
-                      progressIndicatorBuilder: (context, url, progress) {
-                        return Shimmer.fromColors(
-                          baseColor: const Color.fromARGB(255, 60, 60, 60),
-                          highlightColor: Colors.white.withOpacity(0.02),
-                          child: Container(
-                            width: Get.width * 0.35,
-                            height: Get.width * 0.35,
-                            color: Colors.black,
-                          ),
-                        );
-                      },
-                      errorWidget: (context, url, error) {
-                        return Shimmer.fromColors(
-                          baseColor: const Color.fromARGB(255, 60, 60, 60),
-                          highlightColor: Colors.white.withOpacity(0.02),
-                          child: Container(
-                            width: Get.width * 0.35,
-                            height: Get.width * 0.35,
-                            color: Colors.black,
-                          ),
-                        );
-                      },
+          child: FadeInAnimation(
+            duration: const Duration(milliseconds: 300),
+            child: SizedBox(
+              width: Get.width * 0.35,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: CachedNetworkImage(
+                        imageUrl: '$imageBaseUrl/${mediaChild.imageUrl}',
+                        width: Get.width * 0.35,
+                        height: Get.width * 0.35,
+                        fit: BoxFit.fill,
+                        progressIndicatorBuilder: (context, url, progress) {
+                          return Shimmer.fromColors(
+                            baseColor: const Color.fromARGB(255, 60, 60, 60),
+                            highlightColor: Colors.white.withOpacity(0.02),
+                            child: Container(
+                              width: Get.width * 0.35,
+                              height: Get.width * 0.35,
+                              color: Colors.black,
+                            ),
+                          );
+                        },
+                        errorWidget: (context, url, error) {
+                          return Shimmer.fromColors(
+                            baseColor: const Color.fromARGB(255, 60, 60, 60),
+                            highlightColor: Colors.white.withOpacity(0.02),
+                            child: Container(
+                              width: Get.width * 0.35,
+                              height: Get.width * 0.35,
+                              color: Colors.black,
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    children: [
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Text(
-                        mediaChild.title.en.toString(),
-                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                            color:
-                                Get.isDarkMode ? Colors.white : Colors.black),
-                      ),
-                    ],
-                  )
-                ],
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      children: [
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Text(
+                          mediaChild.title.en.toString(),
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyLarge!
+                              .copyWith(
+                                  color: Get.isDarkMode
+                                      ? Colors.white
+                                      : Colors.black),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 2,
+                    ),
+                    Row(
+                      children: [
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Expanded(
+                            child: artistListUi(logic, mediaChild, context))
+                      ],
+                    )
+                  ],
+                ),
               ),
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget artistListUi(
+      HomeLogic logic, MediaChild mediaChild, BuildContext context) {
+    if (mediaChild.artists.isEmpty) {
+      return Text(
+        "",
+        overflow: TextOverflow.ellipsis,
+        style: Theme.of(context)
+            .textTheme
+            .bodyLarge!
+            .copyWith(color: Get.isDarkMode ? Colors.grey : Colors.black),
+      );
+    }
+    if (mediaChild.artists.isEmpty) {
+      return Text(
+        "",
+        overflow: TextOverflow.ellipsis,
+        style: Theme.of(context)
+            .textTheme
+            .bodyLarge!
+            .copyWith(color: Get.isDarkMode ? Colors.grey : Colors.black),
+      );
+    }
+    if (mediaChild.artists.length == 1) {
+      return Text(
+        mediaChild.artists[0].name.toString(),
+        overflow: TextOverflow.ellipsis,
+        style: Theme.of(context)
+            .textTheme
+            .bodyLarge!
+            .copyWith(color: Get.isDarkMode ? Colors.grey : Colors.black),
+      );
+    }
+    return SizedBox(
+      height: 20,
+      child: ListView.builder(
+        itemCount: 2,
+        physics: const NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        scrollDirection: Axis.horizontal,
+        itemBuilder: (context, index) {
+          return FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              index + 1 == 2
+                  ? " ${mediaChild.artists[index].name}"
+                  : "${mediaChild.artists[index].name} &".toString(),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall!
+                  .copyWith(color: Get.isDarkMode ? Colors.grey : Colors.black),
+            ),
+          );
+        },
       ),
     );
   }
@@ -510,11 +649,8 @@ class HomePage extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: AnimationConfiguration.staggeredList(
         position: index,
-        child: SlideAnimation(
-          horizontalOffset: 500,
-          verticalOffset: 0,
-          delay: const Duration(milliseconds: 100),
-          duration: const Duration(milliseconds: 500),
+        child: FadeInAnimation(
+          duration: const Duration(milliseconds: 300),
           child: OpenContainer(
             tappable: true,
             closedColor: Colors.transparent,
@@ -523,7 +659,7 @@ class HomePage extends StatelessWidget {
             transitionDuration: const Duration(milliseconds: 600),
             closedBuilder: (BuildContext context, void Function() action) =>
                 SizedBox(
-              width: Get.width * 0.7,
+              width: Get.width * 0.35,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(10),
                 child: Column(
@@ -550,10 +686,13 @@ class HomePage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(
-                      height: 10,
+                      height: 8,
                     ),
                     Row(
                       children: [
+                        const SizedBox(
+                          width: 10,
+                        ),
                         Text(
                           mediaChild.title.en.toString(),
                           style: Theme.of(context)
@@ -566,11 +705,18 @@ class HomePage extends StatelessWidget {
                         ),
                       ],
                     ),
-                    Text(
-                      mediaChild.description.en.toString(),
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.caption,
+                    const SizedBox(
+                      height: 3,
                     ),
+                    Row(
+                      children: [
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Expanded(
+                            child: artistListUi(logic, mediaChild, context)),
+                      ],
+                    )
                   ],
                 ),
               ),
@@ -713,6 +859,156 @@ class HomePage extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget albumsContainer(BuildContext context, HomeLogic logic) {
+    return AnimatedSwitcherFlip.flipX(
+        duration: const Duration(milliseconds: 1000),
+        child: logic.albumsList.isEmpty
+            ? const SizedBox(
+                width: 1,
+              )
+            : Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          Obx(
+                            () => Text(
+                              logic.splashLogic.currentLanguage['albums'],
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headline4!
+                                  .copyWith(
+                                      color: Get.isDarkMode
+                                          ? Colors.white
+                                          : Colors.black),
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                        ],
+                      ),
+                      Visibility(
+                        visible: false,
+                        child: TextButton(
+                            onPressed: () {},
+                            child: Obx(() => Text(
+                                logic.splashLogic.currentLanguage['seeAll']))),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: GridView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: logic.albumsList.length,
+                      itemBuilder: (context, index) {
+                        return itemAlbum(context, logic, index);
+                      },
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisSpacing: 10,
+                              childAspectRatio: 9 / 11,
+                              crossAxisCount: 2),
+                    ),
+                  )
+                ],
+              ));
+  }
+
+  Widget itemAlbum(BuildContext context, HomeLogic logic, int index) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: AnimationConfiguration.staggeredList(
+        position: index,
+        child: FadeInAnimation(
+          duration: const Duration(milliseconds: 300),
+          child: OpenContainer(
+            tappable: false,
+            closedColor: Colors.transparent,
+            middleColor: Colors.transparent,
+            openColor: Colors.transparent,
+            closedElevation: 0,
+            openElevation: 0,
+            transitionDuration: const Duration(milliseconds: 600),
+            closedBuilder: (BuildContext context, void Function() action) {
+              return InkWell(
+                onTap: () {
+                  logic.setSelectedPlayList(index);
+                  action.call();
+                },
+                borderRadius: BorderRadius.circular(10),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: CachedNetworkImage(
+                          imageUrl:
+                              '$imageBaseUrl/${logic.albumsList[index].imageUrl}',
+                          width: Get.width * 0.35,
+                          height: Get.width * 0.35,
+                          fit: BoxFit.fill,
+                          progressIndicatorBuilder: (context, url, progress) {
+                            return Shimmer.fromColors(
+                              baseColor: const Color.fromARGB(255, 60, 60, 60),
+                              highlightColor: Colors.white.withOpacity(0.02),
+                              child: Container(
+                                width: Get.width * 0.35,
+                                height: Get.width * 0.35,
+                                color: Colors.black,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        children: [
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          Text(
+                            logic.albumsList[index].title,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyLarge!
+                                .copyWith(
+                                    fontFamily: '',
+                                    color: Get.isDarkMode
+                                        ? Colors.white
+                                        : Colors.black),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+              );
+            },
+            openBuilder: (BuildContext context,
+                void Function({Object? returnValue}) action) {
+              return PlayListDeatilPage(logic.albumsList[index]);
+            },
           ),
         ),
       ),

@@ -18,6 +18,8 @@ import '../../utils/utils.dart';
 import 'package:bong/src/core/models/detail_media_model.dart'
     as mediaDetailModel;
 
+import '../media_info_main/media_info_main_view.dart';
+
 class VideoUiLogic extends GetxController {
   late MediaChild currenMedia;
   File? offlineFile;
@@ -109,5 +111,23 @@ class VideoUiLogic extends GetxController {
   void goToViewInfo() {
     Get.back();
     Get.toNamed('/media_info');
+  }
+
+  void addToFavoriteUpnext(mediaDetailModel.Data upnextItem) async {
+    if (!GetStorage().hasData('token')) {
+      EasyLoading.showToast('please login first');
+      return;
+    }
+    EasyLoading.show(status: "Please Wait");
+    await RemoteService().toggleFavorite(upnextItem.id, "media");
+    EasyLoading.showToast("SuccessFul");
+    upnextItem.isFavourite = !upnextItem.isFavourite;
+  }
+
+  void goToViewInfoUpnext(mediaDetailModel.Data upnextItem) {
+    Get.back();
+    Get.to(() => const MediaInfoMainPage(), arguments: {
+      "media": artistDetailModel.Media.fromJson(upnextItem.toJson())
+    });
   }
 }

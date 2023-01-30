@@ -15,6 +15,8 @@ class HomeLogic extends GetxController {
   Rxn<HomeRequestModel> homeRequestModel = Rxn();
   RxList<Artist> artistList = RxList();
   RxList<MediaChild> forYouList = RxList();
+  RxList<MediaChild> videosList = RxList();
+  RxList<PlaylistChild> albumsList = RxList();
   RxList<Playlist> playList = RxList();
   RxList<Media> mediaCategory = RxList();
 
@@ -40,6 +42,8 @@ class HomeLogic extends GetxController {
     forYouList.value = List.from(homeRequestModel.value!.data.forYou);
     playList.value = List.from(homeRequestModel.value!.data.playlists);
     mediaCategory.value = List.from(homeRequestModel.value!.data.media);
+    albumsList.value = List.from(homeRequestModel.value!.data.albums);
+    videosList.value = List.from(homeRequestModel.value!.data.videos);
   }
 
   void setSelectedPlayList(int index) {
